@@ -101,12 +101,17 @@ def calc_frb_rates_vs_fluence( freq_target,                    # target frequenc
          
 
    return (out_fluence,out_rates)   
-   
-
+  
+# https://matplotlib.org/3.5.0/api/_as_gen/matplotlib.pyplot.legend.html   
+# legend()
+# legend(handles, labels)
+# legend(handles=handles)
+# legend(labels)
 def do_plots(options) :
    fig_size_x=20
    fig_size_y=10
    legend_list = []
+   plot_list   = []
    legend_location = "upper right"
 
    plt.figure( figsize=( fig_size_x , fig_size_y ) )
@@ -117,12 +122,13 @@ def do_plots(options) :
    frb_rate_tingay = 700
    point_tingay = 'v'
    (fluence_tingay,frb_rates_tingay) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_tingay, frb_rate_tingay, spectral_index=0 )
-   ax =  plt.plot( fluence_tingay,frb_rates_tingay, linestyle='dashed', color='green', linewidth=1 )   
-   ax =  plt.plot( fluence_tingay,frb_rates_tingay, point_tingay, color='green', linewidth=2, markersize=5 )
+   ax1 =  plt.plot( fluence_tingay,frb_rates_tingay, linestyle='dashed', color='green', linewidth=1 )   
+   ax2 =  plt.plot( fluence_tingay,frb_rates_tingay, point_tingay, color='green', linewidth=2, markersize=5 )
+   plot_list.append(ax1[0])   
    legend_list.append("Tingay et al.,2015, 154 MHz")
-   legend_list.append("Tingay et al.,2015, 154 MHz")
+#   legend_list.append("Tingay et al.,2015, 154 MHz")
    plt.plot( [fluence_limit_tingay] , [frb_rate_tingay] , point_tingay , color='green', markersize=12 )
-   legend_list.append("Tingay et al.,2015, 154 MHz")
+#   legend_list.append("Tingay et al.,2015, 154 MHz")
    
    # Shannon et al. 2018 
    # 37 +/- 8 /day/sky 
@@ -137,21 +143,23 @@ def do_plots(options) :
    # using Ryan's spectral index from ASKAP :
    (fluence_rshannon,frb_rates_rshannon) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_rshannon, frb_rate_rshannon, spectral_index=spectral_index_rshannon, freq_ref=freq_shannon )
    ax_rshannon =  plt.plot( fluence_rshannon,frb_rates_rshannon, linestyle='dashed', color='orange', linewidth=2, markersize=12 )
-   legend_list.append("Shannon et al.,2018, #alpha=-2.1")
+   plot_list.append(ax_rshannon[0])
+   legend_list.append(r'Shannon et al.,2018, $\alpha$=-2.1')
 #   plt.plot( [fluence_limit_rshannon] , [frb_rate_rshannon] , point_rshannon , color='orange', markersize=20 )
 
    # using spectral index = -1
    (fluence_rshannonM1,frb_rates_rshannonM1) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_rshannon, frb_rate_rshannon, spectral_index=-1 , freq_ref=freq_shannon )
    ax_rshannonM1 =  plt.plot( fluence_rshannonM1,frb_rates_rshannonM1, linestyle='-.', color='orange', linewidth=2, markersize=12 )
-   legend_list.append("Shannon et al.,2018, #alpha=-1")
+#   legend_list.append("Shannon et al.,2018, #alpha=-1")
 
    # using flat (0) spectral index :
    (fluence_rshannon0,frb_rates_rshannon0) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_rshannon, frb_rate_rshannon, spectral_index=0 , freq_ref=freq_shannon )
    ax_rshannon0 =  plt.plot( fluence_rshannon0,frb_rates_rshannon0, linestyle='dotted', color='orange', linewidth=2, markersize=12 )
-   legend_list.append("Shannon et al.,2018, #alpha=0")
+#   legend_list.append("Shannon et al.,2018, #alpha=0")
 
 
-   plt.legend( legend_list, loc=legend_location, fontsize=20)
+#   plt.legend( legend_list, loc=legend_location, fontsize=20)
+   plt.legend( plot_list, legend_list, loc=legend_location, fontsize=20)
 
    
    
