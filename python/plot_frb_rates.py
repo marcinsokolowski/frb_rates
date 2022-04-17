@@ -117,7 +117,8 @@ def do_plots(options) :
    plt.figure( figsize=( fig_size_x , fig_size_y ) )
    fig = plt.gcf()
    
-   # add points from Tingay et al (2015) :
+   ##################################################################################################################################################################       
+   #                                   Tingay et al (2015) : /home/msok//Desktop/GRANTS/2020/LIEF/SECTIONS/references/LOW_FREQ_NON-DETECTIONS/Tingay_2015_AJ_150_199_MS.pdf   
    fluence_limit_tingay = 700
    frb_rate_tingay = 700
    point_tingay = 'v'
@@ -129,8 +130,11 @@ def do_plots(options) :
 #   legend_list.append("Tingay et al.,2015, 154 MHz")
    plt.plot( [fluence_limit_tingay] , [frb_rate_tingay] , point_tingay , color='green', markersize=12 )
 #   legend_list.append("Tingay et al.,2015, 154 MHz")
+   ##################################################################################################################################################################
    
-   # Shannon et al. 2018 
+   ##################################################################################################################################################################   
+   #                             Shannon et al. 2018 page 5 in /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/FRB_rates/ASKAP/Shannon_et_al_2018.pdf
+   #
    # 37 +/- 8 /day/sky 
    # above threshold = 26 Jy ms (w/1.26 ms)^{-1/2}
    # Frequency spectral index scaling_index=-2.1
@@ -140,26 +144,67 @@ def do_plots(options) :
    freq_shannon = 1400.00
    point_rshannon = '+'
 
-   # using Ryan's spectral index from ASKAP :
+   # using Ryan Shannon et al, (2018)  spectral index from ASKAP :
    (fluence_rshannon,frb_rates_rshannon) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_rshannon, frb_rate_rshannon, spectral_index=spectral_index_rshannon, freq_ref=freq_shannon )
    ax_rshannon =  plt.plot( fluence_rshannon,frb_rates_rshannon, linestyle='dashed', color='orange', linewidth=2, markersize=12 )
    plot_list.append(ax_rshannon[0])
    legend_list.append(r'Shannon et al.,2018, $\alpha$=-2.1')
-#   plt.plot( [fluence_limit_rshannon] , [frb_rate_rshannon] , point_rshannon , color='orange', markersize=20 )
+   
+   # add Ryan's point iteself (without any frequency scaling, i.e. spectral index = 0 )
+   plt.plot( [fluence_limit_rshannon] , [frb_rate_rshannon] , point_rshannon , color='orange', markersize=20 )
 
    # using spectral index = -1
    (fluence_rshannonM1,frb_rates_rshannonM1) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_rshannon, frb_rate_rshannon, spectral_index=-1 , freq_ref=freq_shannon )
    ax_rshannonM1 =  plt.plot( fluence_rshannonM1,frb_rates_rshannonM1, linestyle='-.', color='orange', linewidth=2, markersize=12 )
+   plot_list.append(ax_rshannonM1[0])
+   legend_list.append(r'Shannon et al.,2018, $\alpha$=-1')
 #   legend_list.append("Shannon et al.,2018, #alpha=-1")
 
    # using flat (0) spectral index :
    (fluence_rshannon0,frb_rates_rshannon0) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_rshannon, frb_rate_rshannon, spectral_index=0 , freq_ref=freq_shannon )
    ax_rshannon0 =  plt.plot( fluence_rshannon0,frb_rates_rshannon0, linestyle='dotted', color='orange', linewidth=2, markersize=12 )
+   plot_list.append(ax_rshannon0[0])
+   legend_list.append(r'Shannon et al.,2018, $\alpha$=0')
 #   legend_list.append("Shannon et al.,2018, #alpha=0")
+   ##################################################################################################################################################################
+
+
+   ##################################################################################################################################################################
+   #                                     Parent et al (2020) /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/FRB_rates/GBT/acroread/Parent_et_al_2022.pdf
+   #
+   # How to convert flux limit to fluence limit ? Is it assuming Gaussian of peak = Peak flux ?
+   #   
+   ##################################################################################################################################################################
+   fluence_limit_parent_gbt = 1.44
+   frb_rate_parent_gbt = 3400
+   spectral_index_parent_gbt  = 0. # 350 MHz is very close to we can assume pessimistic (specrtal index = 0) scenario
+   freq_parent_gbt = 350.00
+   point_parent_gbt = 'x'
+
+   (fluence_parent_gbt,frb_rates_parent_gbt) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt, spectral_index=-2, freq_ref=freq_parent_gbt )
+   ax_parent_gbtM2 =  plt.plot( fluence_parent_gbt, frb_rates_parent_gbt, linestyle='dotted', color='green', linewidth=2, markersize=12 )
+   plot_list.append(ax_parent_gbtM2[0])
+   legend_list.append(r'Parent et al.,2020, $\alpha$=-2.00')
+
+   (fluence_parent_gbt,frb_rates_parent_gbt) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt, spectral_index=-1, freq_ref=freq_parent_gbt )
+   ax_parent_gbtM1 =  plt.plot( fluence_parent_gbt,frb_rates_parent_gbt, linestyle='dotted', color='green', linewidth=2, markersize=12 )
+   plot_list.append(ax_parent_gbtM1[0])
+   legend_list.append(r'Parent et al.,2020, $\alpha$=-1.00')
+
+   (fluence_parent_gbt,frb_rates_parent_gbt) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt, spectral_index=0.00, freq_ref=freq_parent_gbt )
+   ax_parent_gbt =  plt.plot( fluence_parent_gbt,frb_rates_parent_gbt, linestyle='dotted', color='green', linewidth=2, markersize=12 )
+   plot_list.append(ax_parent_gbt[0])
+   legend_list.append(r'Parent et al.,2020, $\alpha$=0.00')
+   
+   # add GBT point itself -  (without any frequency scaling, i.e. spectral index = 0 )
+   plt.plot( [fluence_limit_parent_gbt] , [frb_rate_parent_gbt] , point_parent_gbt , color='green', markersize=20 )
+
+   ##################################################################################################################################################################
+
 
 
 #   plt.legend( legend_list, loc=legend_location, fontsize=20)
-   plt.legend( plot_list, legend_list, loc=legend_location, fontsize=20)
+   plt.legend( plot_list, legend_list, loc=legend_location, fontsize=10)
 
    
    
