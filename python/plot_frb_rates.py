@@ -171,6 +171,7 @@ def do_plots(options) :
 
    ##################################################################################################################################################################
    #                                     Parent et al (2020) /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/FRB_rates/GBT/acroread/Parent_et_al_2022.pdf
+   # Rate = 3400+15400-3300 above fluence 1.44 Jy ms 
    #
    # How to convert flux limit to fluence limit ? Is it assuming Gaussian of peak = Peak flux ?
    #   
@@ -192,7 +193,12 @@ def do_plots(options) :
    legend_list.append(r'Parent et al.,2020, $\alpha$=-1.00')
 
    (fluence_parent_gbt,frb_rates_parent_gbt) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt, spectral_index=0.00, freq_ref=freq_parent_gbt )
+   lower_error = numpy.ones(len(fluence_parent_gbt))*3300
+   upper_error = numpy.ones(len(fluence_parent_gbt))*15400
+   asymmetric_error = [lower_error, upper_error]
    ax_parent_gbt =  plt.plot( fluence_parent_gbt,frb_rates_parent_gbt, linestyle='dotted', color='green', linewidth=2, markersize=12 )
+#   plt.errorbar( fluence_parent_gbt, frb_rates_parent_gbt, yerr=asymmetric_error, fmt='.', color='green')
+   plt.fill_between( fluence_parent_gbt, frb_rates_parent_gbt-lower_error, frb_rates_parent_gbt+upper_error, color='green' , alpha=0.1 )
    plot_list.append(ax_parent_gbt[0])
    legend_list.append(r'Parent et al.,2020, $\alpha$=0.00')
    
@@ -200,8 +206,26 @@ def do_plots(options) :
    plt.plot( [fluence_limit_parent_gbt] , [frb_rate_parent_gbt] , point_parent_gbt , color='green', markersize=20 )
 
    ##################################################################################################################################################################
+   
+   ##################################################################################################################################################################
+   # CHIME :   /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/FRB_rates/CHIME 
+   #             https://ui.adsabs.harvard.edu/abs/2021ApJ...923....1P/abstract
+   #
+   ##################################################################################################################################################################
+   ##################################################################################################################################################################
 
-
+   ##################################################################################################################################################################
+   # LOFAR :   /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/FRB_rates/LOFAR/2012.08348_MS.pdf
+   #           pm = Pastor - Marazuela : https://ui.adsabs.harvard.edu/abs/2021Natur.596..505P/abstract
+   #           FRB rate at 150 megahertz, we find there are 3-450 FRBs in the sky per day above 50 Jy ms.
+   ##################################################################################################################################################################
+   fluence_limit_lofar_pm_low = 50
+   frb_rate_pm_low = 3   
+   fluence_limit_lofar_pm_high = 50
+   frb_rate_pm_high = 450
+   
+   
+   ##################################################################################################################################################################
 
 #   plt.legend( legend_list, loc=legend_location, fontsize=20)
    plt.legend( plot_list, legend_list, loc=legend_location, fontsize=10)
