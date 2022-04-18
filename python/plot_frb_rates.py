@@ -217,17 +217,54 @@ def do_plots(options) :
    ##################################################################################################################################################################
    # CHIME :   /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/FRB_rates/CHIME 
    #             https://ui.adsabs.harvard.edu/abs/2021ApJ...923....1P/abstract
-   #
-   ##################################################################################################################################################################
-   ##################################################################################################################################################################
-   #
-   # ?????
    # 
+   #          In this assumption, the derived FRB rate was RFRB = 820 /sky/day above a fluence F > 5 Jy ms. in /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/FRB_Newsletter_202203/2203.04890.pdf 
+   #              https://ui.adsabs.harvard.edu/abs/2021ApJS..257...59C/abstract
+   # " We infer a sky rate of [820 +/- 60(stat.) +220 -200(sys.)]/sky/day above a fluence of 5 Jy ms at 600 MHz, with a scattering time at 600 MHz under 10 ms and DM above 100 pc cm-3. "
+   #
+   ##################################################################################################################################################################
+   ##################################################################################################################################################################
+   fluence_limit_chime = 5
+   frb_rate_chime = 820
+   freq_chime = 600.00
+   point_chime = 'D'
+   chime_color='red'
+
+   # 
+   (fluence_chime,frb_rates_chime) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_chime, frb_rate_chime, spectral_index=0, freq_ref=freq_chime )
+   ax_chime =  plt.plot( fluence_chime, frb_rates_chime, linestyle='-', color=chime_color, linewidth=2, markersize=12 )
+   plot_list.append(ax_chime[0])
+   legend_list.append(r'CHIME, 600 MHz, Amiri et al., 2021, $\alpha$=0')
+   
+   # add Ryan's point iteself (without any frequency scaling, i.e. spectral index = 0 )
+   ax_chime_point = plt.plot( [fluence_limit_chime] , [frb_rate_chime] , point_chime , color=chime_color, markersize=10 )
+   plot_list.append(ax_chime_point[0])
+   legend_list.append(r'CHIME, 600 MHz, Amiri et al., 2021')
+
+   # using spectral index = -1
+   (fluence_chimeM1,frb_rates_chimeM1) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_chime, frb_rate_chime, spectral_index=-1 , freq_ref=freq_chime )
+   ax_chimeM1 =  plt.plot( fluence_chimeM1,frb_rates_chimeM1, linestyle='--', color=chime_color, linewidth=2, markersize=12 )
+   plot_list.append(ax_chimeM1[0])
+   legend_list.append(r'CHIME, 600 MHz, Amiri et al., 2021, $\alpha$=-1')
+#   legend_list.append("Shannon et al.,2018, #alpha=-1")
+
+   # using flat (0) spectral index :
+   (fluence_chimeM2,frb_rates_chimeM2) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_chime, frb_rate_chime, spectral_index=-2, freq_ref=freq_chime )
+   ax_chimeM2 =  plt.plot( fluence_chimeM2, frb_rates_chimeM2, linestyle='-.', color=chime_color, linewidth=2, markersize=12 )
+   plot_list.append(ax_chimeM2[0])
+   legend_list.append(r'CHIME, 600 MHz, Amiri et al., 2021, $\alpha$=-2')
+   
+   lower_error = numpy.ones(len(fluence_chime))*200
+   upper_error = numpy.ones(len(fluence_chime))*220
+   asymmetric_error = [lower_error, upper_error]
+   plt.fill_between( fluence_chime, frb_rates_chime-lower_error, frb_rates_chime+upper_error, color=chime_color , alpha=0.1 )
+
 
    ##################################################################################################################################################################
    # LOFAR :   /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/FRB_rates/LOFAR/2012.08348_MS.pdf
    #           pm = Pastor-Marazuela, Ines : https://ui.adsabs.harvard.edu/abs/2021Natur.596..505P/abstract
-   #           FRB rate at 150 megahertz, we find there are 3-450 FRBs in the sky per day above 50 Jy ms.
+   #           FRB rate based on FRB20180916B burst rate at 150 megahertz, we find there are 3-450 FRBs in the sky per day above 50 Jy ms.
+   #           By extending this limit with Euclidean fluence scaling, the rate becomes RFRB = 90  1400 sky1 day1.
    ##################################################################################################################################################################
    fluence_limit_lofar_pm_low = 50
    frb_rate_lofar_pm_low = 3   
@@ -272,7 +309,7 @@ def do_plots(options) :
 
    # 
    (fluence_utmost,frb_rates_utmost) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_utmost, frb_rate_utmost, spectral_index=0, freq_ref=freq_utmost )
-   ax_utmost =  plt.plot( fluence_utmost, frb_rates_utmost, linestyle='--', color=utmost_color, linewidth=2, markersize=12 )
+   ax_utmost =  plt.plot( fluence_utmost, frb_rates_utmost, linestyle='-', color=utmost_color, linewidth=2, markersize=12 )
    plot_list.append(ax_utmost[0])
    legend_list.append(r'UTMOST,???, $\alpha$=0')
    
@@ -283,7 +320,7 @@ def do_plots(options) :
 
    # using spectral index = -1
    (fluence_utmostM1,frb_rates_utmostM1) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_utmost, frb_rate_utmost, spectral_index=-1 , freq_ref=freq_utmost )
-   ax_utmostM1 =  plt.plot( fluence_utmostM1,frb_rates_utmostM1, linestyle='-.', color=utmost_color, linewidth=2, markersize=12 )
+   ax_utmostM1 =  plt.plot( fluence_utmostM1,frb_rates_utmostM1, linestyle='--', color=utmost_color, linewidth=2, markersize=12 )
    plot_list.append(ax_utmostM1[0])
    legend_list.append(r'UTMOST,???, $\alpha$=-1')
 #   legend_list.append("Shannon et al.,2018, #alpha=-1")
