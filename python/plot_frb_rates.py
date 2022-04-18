@@ -119,6 +119,7 @@ def do_plots(options) :
    
    ##################################################################################################################################################################       
    #                                   Tingay et al (2015) : /home/msok//Desktop/GRANTS/2020/LIEF/SECTIONS/references/LOW_FREQ_NON-DETECTIONS/Tingay_2015_AJ_150_199_MS.pdf   
+   # Antonina R. : RFRB < 82 /sky/day at 182 MHz, above a fluence of F > 7980 Jy ms (not a strong limit -> not plotted)
    fluence_limit_tingay = 700
    frb_rate_tingay = 700
    point_tingay = 'v'
@@ -170,6 +171,10 @@ def do_plots(options) :
 #   legend_list.append("Shannon et al.,2018, #alpha=0")
    ##################################################################################################################################################################
 
+   ##################################################################################################################################################################
+   #                                     Lovell telescop rate is similar to GBT < 5500 FRBs / day / sky at 332 MHz (not plotted) 
+   # /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/FRB_Newsletter_202203/2203.04890.pdf 
+   ##################################################################################################################################################################
 
    ##################################################################################################################################################################
    #                                     Parent et al (2020) /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/FRB_rates/GBT/acroread/Parent_et_al_2022.pdf
@@ -215,6 +220,9 @@ def do_plots(options) :
    #
    ##################################################################################################################################################################
    ##################################################################################################################################################################
+   #
+   # ?????
+   # 
 
    ##################################################################################################################################################################
    # LOFAR :   /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/FRB_rates/LOFAR/2012.08348_MS.pdf
@@ -242,11 +250,50 @@ def do_plots(options) :
    asymmetric_error = [lower_error, upper_error]
    plt.fill_between( fluence_lofar_pm, lower_error, upper_error,  color='blue', alpha=0.1 )
 
-   
-   
-   
-   
    ##################################################################################################################################################################
+   # LOFAR OLD : /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/FRB_Newsletter_202203/2203.04890.pdf
+   # 
+   #   LPPS : < 150/day/sky at F > 107 Jy ms at frequency ??? MHz ???
+   #   Rawlings Array : 29/day/sky at F > 310 Jy ms at 145 MHz 
+   #   FRATS : <1400/day/sky F > 6000 Jy ms  between 119 and 151 MHz    
+   ##################################################################################################################################################################
+
+   ##################################################################################################################################################################
+   # UTMOST : /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/FRB_Newsletter_202203/2203.04890.pdf
+   #  1/ RFRB < 1000/sky/day at 843 MHz above a fluence F > 23 Jy ms
+   #  2/ RFRB = 78 /sky/day above a fluence F > 11 Jy ms at 800 MHz 
+   #  3/ RFRB = 98 /sky/day above a fluence F > 8 Jy ms at 800 MHz 
+   ##################################################################################################################################################################
+   fluence_limit_utmost = 8
+   frb_rate_utmost = 98
+   freq_utmost = 800.00
+   point_utmost = 'P'
+   utmost_color='pink'
+
+   # 
+   (fluence_utmost,frb_rates_utmost) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_utmost, frb_rate_utmost, spectral_index=0, freq_ref=freq_utmost )
+   ax_utmost =  plt.plot( fluence_utmost, frb_rates_utmost, linestyle='--', color=utmost_color, linewidth=2, markersize=12 )
+   plot_list.append(ax_utmost[0])
+   legend_list.append(r'UTMOST,???, $\alpha$=0')
+   
+   # add Ryan's point iteself (without any frequency scaling, i.e. spectral index = 0 )
+   ax_utmost_point = plt.plot( [fluence_limit_utmost] , [frb_rate_utmost] , point_utmost , color=utmost_color, markersize=20 )
+   plot_list.append(ax_utmost_point[0])
+   legend_list.append(r'UTMOST, 800 MHz')
+
+   # using spectral index = -1
+   (fluence_utmostM1,frb_rates_utmostM1) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_utmost, frb_rate_utmost, spectral_index=-1 , freq_ref=freq_utmost )
+   ax_utmostM1 =  plt.plot( fluence_utmostM1,frb_rates_utmostM1, linestyle='-.', color=utmost_color, linewidth=2, markersize=12 )
+   plot_list.append(ax_utmostM1[0])
+   legend_list.append(r'UTMOST,???, $\alpha$=-1')
+#   legend_list.append("Shannon et al.,2018, #alpha=-1")
+
+   # using flat (0) spectral index :
+   (fluence_utmostM2,frb_rates_utmostM2) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_utmost, frb_rate_utmost, spectral_index=-2, freq_ref=freq_utmost )
+   ax_utmostM2 =  plt.plot( fluence_utmostM2, frb_rates_utmostM2, linestyle='-.', color=utmost_color, linewidth=2, markersize=12 )
+   plot_list.append(ax_utmostM2[0])
+   legend_list.append(r'UTMOST,???, $\alpha$=-2')
+
 
 #   plt.legend( legend_list, loc=legend_location, fontsize=20)
    plt.legend( plot_list, legend_list, loc=legend_location, fontsize=10)
