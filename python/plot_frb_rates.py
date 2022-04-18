@@ -124,11 +124,11 @@ def do_plots(options) :
    point_tingay = 'v'
    (fluence_tingay,frb_rates_tingay) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_tingay, frb_rate_tingay, spectral_index=0 )
    ax1 =  plt.plot( fluence_tingay,frb_rates_tingay, linestyle='dashed', color='green', linewidth=1 )   
-   ax2 =  plt.plot( fluence_tingay,frb_rates_tingay, point_tingay, color='green', linewidth=2, markersize=5 )
-   plot_list.append(ax1[0])   
-   legend_list.append("Tingay et al.,2015, 154 MHz")
+#   ax2 =  plt.plot( fluence_tingay,frb_rates_tingay, point_tingay, color='green', linewidth=2, markersize=5 )
 #   legend_list.append("Tingay et al.,2015, 154 MHz")
-   plt.plot( [fluence_limit_tingay] , [frb_rate_tingay] , point_tingay , color='green', markersize=12 )
+   ax3 = plt.plot( [fluence_limit_tingay] , [frb_rate_tingay] , point_tingay , linestyle='dashed', color='green', linewidth=2, markersize=10 )
+   plot_list.append(ax3[0])   
+   legend_list.append("Tingay et al.,2015, 154 MHz")
 #   legend_list.append("Tingay et al.,2015, 154 MHz")
    ##################################################################################################################################################################
    
@@ -151,7 +151,9 @@ def do_plots(options) :
    legend_list.append(r'Shannon et al.,2018, $\alpha$=-2.1')
    
    # add Ryan's point iteself (without any frequency scaling, i.e. spectral index = 0 )
-   plt.plot( [fluence_limit_rshannon] , [frb_rate_rshannon] , point_rshannon , color='orange', markersize=20 )
+   ax_rshannon_point = plt.plot( [fluence_limit_rshannon] , [frb_rate_rshannon] , point_rshannon , color='orange', markersize=20 )
+   plot_list.append(ax_rshannon_point[0])
+   legend_list.append(r'Shannon et al.,2018, $\alpha$=0')
 
    # using spectral index = -1
    (fluence_rshannonM1,frb_rates_rshannonM1) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_rshannon, frb_rate_rshannon, spectral_index=-1 , freq_ref=freq_shannon )
@@ -185,12 +187,12 @@ def do_plots(options) :
    (fluence_parent_gbt,frb_rates_parent_gbt) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt, spectral_index=-2, freq_ref=freq_parent_gbt )
    ax_parent_gbtM2 =  plt.plot( fluence_parent_gbt, frb_rates_parent_gbt, linestyle='dotted', color='green', linewidth=2, markersize=12 )
    plot_list.append(ax_parent_gbtM2[0])
-   legend_list.append(r'Parent et al.,2020, $\alpha$=-2.00')
+   legend_list.append(r'Parent et al.,2020, $\alpha$=-2')
 
    (fluence_parent_gbt,frb_rates_parent_gbt) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt, spectral_index=-1, freq_ref=freq_parent_gbt )
    ax_parent_gbtM1 =  plt.plot( fluence_parent_gbt,frb_rates_parent_gbt, linestyle='dotted', color='green', linewidth=2, markersize=12 )
    plot_list.append(ax_parent_gbtM1[0])
-   legend_list.append(r'Parent et al.,2020, $\alpha$=-1.00')
+   legend_list.append(r'Parent et al.,2020, $\alpha$=-1')
 
    (fluence_parent_gbt,frb_rates_parent_gbt) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt, spectral_index=0.00, freq_ref=freq_parent_gbt )
    lower_error = numpy.ones(len(fluence_parent_gbt))*3300
@@ -200,7 +202,7 @@ def do_plots(options) :
 #   plt.errorbar( fluence_parent_gbt, frb_rates_parent_gbt, yerr=asymmetric_error, fmt='.', color='green')
    plt.fill_between( fluence_parent_gbt, frb_rates_parent_gbt-lower_error, frb_rates_parent_gbt+upper_error, color='green' , alpha=0.1 )
    plot_list.append(ax_parent_gbt[0])
-   legend_list.append(r'Parent et al.,2020, $\alpha$=0.00')
+   legend_list.append(r'Parent et al.,2020, $\alpha$=0')
    
    # add GBT point itself -  (without any frequency scaling, i.e. spectral index = 0 )
    plt.plot( [fluence_limit_parent_gbt] , [frb_rate_parent_gbt] , point_parent_gbt , color='green', markersize=20 )
@@ -216,13 +218,32 @@ def do_plots(options) :
 
    ##################################################################################################################################################################
    # LOFAR :   /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/FRB_rates/LOFAR/2012.08348_MS.pdf
-   #           pm = Pastor - Marazuela : https://ui.adsabs.harvard.edu/abs/2021Natur.596..505P/abstract
+   #           pm = Pastor-Marazuela, Ines : https://ui.adsabs.harvard.edu/abs/2021Natur.596..505P/abstract
    #           FRB rate at 150 megahertz, we find there are 3-450 FRBs in the sky per day above 50 Jy ms.
    ##################################################################################################################################################################
    fluence_limit_lofar_pm_low = 50
-   frb_rate_pm_low = 3   
+   frb_rate_lofar_pm_low = 3   
    fluence_limit_lofar_pm_high = 50
-   frb_rate_pm_high = 450
+   frb_rate_lofar_pm_high = 450
+   frb_rate_lofar_pm = (frb_rate_lofar_pm_low + frb_rate_lofar_pm_high) / 2.00
+   fluence_limit_lofar_pm = (fluence_limit_lofar_pm_low+fluence_limit_lofar_pm_high)/2.00
+   
+   spectral_index_lofar_pm  = 0. # 150 MHz is very close to we can assume pessimistic (specrtal index = 0) scenario
+   freq_lofar_pm = 150.00
+   point_lofar_pm = 's'
+
+   (fluence_lofar_pm,frb_rates_lofar_pm) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_lofar_pm, frb_rate_lofar_pm, spectral_index=0, freq_ref=freq_lofar_pm )
+   ax_parent_lofar_pm_sp0 =  plt.plot( fluence_lofar_pm,frb_rates_lofar_pm, linestyle='-', color='blue', linewidth=2, markersize=12 )
+   plot_list.append(ax_parent_lofar_pm_sp0[0])
+   legend_list.append(r'Pastor-Marazuela, (Lofar) et al., $\alpha$=0')
+   
+   lower_error = numpy.ones(len(fluence_parent_gbt))*frb_rate_lofar_pm_low
+   upper_error = numpy.ones(len(fluence_parent_gbt))*frb_rate_lofar_pm_high
+   asymmetric_error = [lower_error, upper_error]
+   plt.fill_between( fluence_lofar_pm, lower_error, upper_error,  color='blue', alpha=0.1 )
+
+   
+   
    
    
    ##################################################################################################################################################################
