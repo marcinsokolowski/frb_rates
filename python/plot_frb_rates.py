@@ -130,6 +130,8 @@ def do_plots(options) :
    ax3 = plt.plot( [fluence_limit_tingay] , [frb_rate_tingay] , point_tingay , linestyle='dashed', color='green', linewidth=2, markersize=10 )
    plot_list.append(ax3[0])   
    legend_list.append("Tingay et al.,2015, 154 MHz")
+   plt.xlim(( 1, 10000 ))
+#   ax1.set_xlim(1,10000)
 #   legend_list.append("Tingay et al.,2015, 154 MHz")
    ##################################################################################################################################################################
    
@@ -335,7 +337,15 @@ def do_plots(options) :
 #   plt.legend( legend_list, loc=legend_location, fontsize=20)
    plt.legend( plot_list, legend_list, loc=legend_location, fontsize=10)
 
-   
+   # mark region : https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.html
+   # plt.axhspan(ymin, ymax[, xmin, xmax])   
+#   plt.axhspan( 0.0001, 200, 90, 1000, alpha=0.3, facecolor='0.5' )
+   plt.axvspan( 200, 10000, ymin=0.235, ymax=0.535, alpha=0.5, facecolor='red' )
+   # legend of the span :
+   plt.axvspan( 10, 600, ymin=0.94, ymax=0.99, alpha=0.5, facecolor='red' )
+   plt.text(15,14000000,"FRB rate below 350 MHz based on the literature",fontsize=15)
+
+
    
    plt.xlabel('Fluence [Jy ms]' , fontsize=30 )
    plt.ylabel('#FRBs / day / sky' , fontsize=30 )
