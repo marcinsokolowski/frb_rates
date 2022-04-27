@@ -6,6 +6,7 @@ import numpy
 import math
 import matplotlib.pyplot as plt
 import matplotlib.dates as md  # to convert unix time to date on X-axis 
+import matplotlib.patches as patches
 import os
 import copy
 import time
@@ -37,9 +38,10 @@ def parse_options(idx):
 #   parser.add_option('-s','--station_name','--station',dest="station_name",default="AAVS2", help="Station name [default %default]")
 
    # TEST : azim=0, za=0, lst=15.4 
-#   parser.add_option('-p','--plot','--do_plot','--do_plots',action="store_true",dest="do_plot",default=False, help="Plot")
+   parser.add_option('-g','--grid','--show_grid',action="store_true",dest="show_grid",default=False, help="Show grid lines [default %default]")
+   parser.add_option('-T','--tingay','--show_tingay',action="store_true",dest="show_tingay",default=False, help="Show Tingay et al. (2015) upper limit [default %default]")
 #   parser.add_option('-a','--azim','--azim_deg',dest="azim_deg",default=None, help="Pointing direction azimuth in degrees [default %default]",metavar="float",type="float")
-   parser.add_option('-f','--freq','--freq_mhz',dest="freq_mhz",default=154.00, help="Survey frequency in MHz [default %default MHz]",metavar="float",type="float")
+   parser.add_option('-f','--freq','--freq_mhz',dest="freq_mhz",default=200.00, help="Survey frequency in MHz [default %default MHz]",metavar="float",type="float")
    (options, args) = parser.parse_args(sys.argv[idx:])
 
    print("#####################################################################################################")
@@ -123,14 +125,17 @@ def do_plots(options) :
    fluence_limit_tingay = 700
    frb_rate_tingay = 700
    point_tingay = 'v'
-   (fluence_tingay,frb_rates_tingay) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_tingay, frb_rate_tingay, spectral_index=0 )
-   ax1 =  plt.plot( fluence_tingay,frb_rates_tingay, linestyle='dashed', color='green', linewidth=1 )   
+   if options.show_tingay :
+      (fluence_tingay,frb_rates_tingay) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_tingay, frb_rate_tingay, spectral_index=0 )   
+      ax1 =  plt.plot( fluence_tingay,frb_rates_tingay, linestyle='dashed', color='green', linewidth=1 )   
 #   ax2 =  plt.plot( fluence_tingay,frb_rates_tingay, point_tingay, color='green', linewidth=2, markersize=5 )
 #   legend_list.append("Tingay et al.,2015, 154 MHz")
-   ax3 = plt.plot( [fluence_limit_tingay] , [frb_rate_tingay] , point_tingay , linestyle='dashed', color='green', linewidth=2, markersize=10 )
-   plot_list.append(ax3[0])   
-   legend_list.append("Tingay et al.,2015, 154 MHz")
-   plt.xlim(( 1, 10000 ))
+      ax3 = plt.plot( [fluence_limit_tingay] , [frb_rate_tingay] , point_tingay , linestyle='dashed', color='green', linewidth=2, markersize=10 )
+      plot_list.append(ax3[0])   
+      legend_list.append("MWA, 154 MHz, Tingay et al.,2015")
+      plt.xlim(( 1, 10000 ))
+   else :
+      print("WARNING : upper limit from Tingay et al. 2015 not shown")
 #   ax1.set_xlim(1,10000)
 #   legend_list.append("Tingay et al.,2015, 154 MHz")
    ##################################################################################################################################################################
@@ -145,31 +150,31 @@ def do_plots(options) :
    frb_rate_rshannon = 37
    spectral_index_rshannon = -2.1
    freq_shannon = 1400.00
-   point_rshannon = '+'
+   point_rshannon = 's'
+   
+   # add Ryan's point iteself (without any frequency scaling, i.e. spectral index = 0 )
+   ax_rshannon_point = plt.plot( [fluence_limit_rshannon] , [frb_rate_rshannon] , point_rshannon , color='orange', markersize=15 )
+   plot_list.append(ax_rshannon_point[0])
+   legend_list.append(r'ASKAP, 1.4 GHz, Shannon et al.,2018, (measured)')
 
    # using Ryan Shannon et al, (2018)  spectral index from ASKAP :
    (fluence_rshannon,frb_rates_rshannon) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_rshannon, frb_rate_rshannon, spectral_index=spectral_index_rshannon, freq_ref=freq_shannon )
-   ax_rshannon =  plt.plot( fluence_rshannon,frb_rates_rshannon, linestyle='dashed', color='orange', linewidth=2, markersize=12 )
+   ax_rshannon =  plt.plot( fluence_rshannon,frb_rates_rshannon, linestyle='--', color='orange', linewidth=2, markersize=12 )
    plot_list.append(ax_rshannon[0])
-   legend_list.append(r'Shannon et al.,2018, $\alpha$=-2.1')
+   legend_list.append(r'ASKAP, 1.4 GHz, Shannon et al.,2018, $\alpha$=-2.1')
    
-   # add Ryan's point iteself (without any frequency scaling, i.e. spectral index = 0 )
-   ax_rshannon_point = plt.plot( [fluence_limit_rshannon] , [frb_rate_rshannon] , point_rshannon , color='orange', markersize=20 )
-   plot_list.append(ax_rshannon_point[0])
-   legend_list.append(r'Shannon et al.,2018, $\alpha$=0')
-
    # using spectral index = -1
    (fluence_rshannonM1,frb_rates_rshannonM1) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_rshannon, frb_rate_rshannon, spectral_index=-1 , freq_ref=freq_shannon )
    ax_rshannonM1 =  plt.plot( fluence_rshannonM1,frb_rates_rshannonM1, linestyle='-.', color='orange', linewidth=2, markersize=12 )
    plot_list.append(ax_rshannonM1[0])
-   legend_list.append(r'Shannon et al.,2018, $\alpha$=-1')
+   legend_list.append(r'ASKAP, 1.4 GHz, Shannon et al.,2018, $\alpha$=-1')
 #   legend_list.append("Shannon et al.,2018, #alpha=-1")
 
    # using flat (0) spectral index :
    (fluence_rshannon0,frb_rates_rshannon0) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_rshannon, frb_rate_rshannon, spectral_index=0 , freq_ref=freq_shannon )
-   ax_rshannon0 =  plt.plot( fluence_rshannon0,frb_rates_rshannon0, linestyle='dotted', color='orange', linewidth=2, markersize=12 )
+   ax_rshannon0 =  plt.plot( fluence_rshannon0,frb_rates_rshannon0, linestyle='-', color='orange', linewidth=2, markersize=12 )
    plot_list.append(ax_rshannon0[0])
-   legend_list.append(r'Shannon et al.,2018, $\alpha$=0')
+   legend_list.append(r'ASKAP, 1.4 GHz, Shannon et al.,2018, $\alpha$=0')
 #   legend_list.append("Shannon et al.,2018, #alpha=0")
    ##################################################################################################################################################################
 
@@ -189,31 +194,36 @@ def do_plots(options) :
    frb_rate_parent_gbt = 3400
    spectral_index_parent_gbt  = 0. # 350 MHz is very close to we can assume pessimistic (specrtal index = 0) scenario
    freq_parent_gbt = 350.00
-   point_parent_gbt = 'x'
+   point_parent_gbt = 'o'
+
+   # add GBT point itself -  (without any frequency scaling, i.e. spectral index = 0 )
+   ax_parent_point = plt.plot( [fluence_limit_parent_gbt] , [frb_rate_parent_gbt] , point_parent_gbt , color='green', markersize=15 )
+   plot_list.append(ax_parent_point[0])
+   legend_list.append(r'GBT, 350 MHz, Parent et al., 2020 (measured)')
 
    (fluence_parent_gbt,frb_rates_parent_gbt) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt, spectral_index=-2, freq_ref=freq_parent_gbt )
-   ax_parent_gbtM2 =  plt.plot( fluence_parent_gbt, frb_rates_parent_gbt, linestyle='dotted', color='green', linewidth=2, markersize=12 )
+   ax_parent_gbtM2 =  plt.plot( fluence_parent_gbt, frb_rates_parent_gbt, linestyle='--', color='green', linewidth=2, markersize=12 )
    plot_list.append(ax_parent_gbtM2[0])
-   legend_list.append(r'Parent et al.,2020, $\alpha$=-2')
+   legend_list.append(r'GBT, 350 MHz, Parent et al., 2020, $\alpha$=-2')
 
    (fluence_parent_gbt,frb_rates_parent_gbt) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt, spectral_index=-1, freq_ref=freq_parent_gbt )
-   ax_parent_gbtM1 =  plt.plot( fluence_parent_gbt,frb_rates_parent_gbt, linestyle='dotted', color='green', linewidth=2, markersize=12 )
+   ax_parent_gbtM1 =  plt.plot( fluence_parent_gbt,frb_rates_parent_gbt, linestyle='-.', color='green', linewidth=2, markersize=12 )
    plot_list.append(ax_parent_gbtM1[0])
-   legend_list.append(r'Parent et al.,2020, $\alpha$=-1')
+   legend_list.append(r'GBT, 350 MHz, Parent et al., 2020, $\alpha$=-1')
 
    (fluence_parent_gbt,frb_rates_parent_gbt) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt, spectral_index=0.00, freq_ref=freq_parent_gbt )
-   lower_error = numpy.ones(len(fluence_parent_gbt))*3300
-   upper_error = numpy.ones(len(fluence_parent_gbt))*15400
-   asymmetric_error = [lower_error, upper_error]
-   ax_parent_gbt =  plt.plot( fluence_parent_gbt,frb_rates_parent_gbt, linestyle='dotted', color='green', linewidth=2, markersize=12 )
-#   plt.errorbar( fluence_parent_gbt, frb_rates_parent_gbt, yerr=asymmetric_error, fmt='.', color='green')
-   plt.fill_between( fluence_parent_gbt, frb_rates_parent_gbt-lower_error, frb_rates_parent_gbt+upper_error, color='green' , alpha=0.1 )
+   ax_parent_gbt =  plt.plot( fluence_parent_gbt,frb_rates_parent_gbt, linestyle='-', color='green', linewidth=2, markersize=12 )
    plot_list.append(ax_parent_gbt[0])
-   legend_list.append(r'Parent et al.,2020, $\alpha$=0')
-   
-   # add GBT point itself -  (without any frequency scaling, i.e. spectral index = 0 )
-   plt.plot( [fluence_limit_parent_gbt] , [frb_rate_parent_gbt] , point_parent_gbt , color='green', markersize=20 )
-
+   legend_list.append(r'GBT, 350 MHz, Parent et al., 2020, $\alpha$=0')   
+ 
+   (fluence_parent_gbt_lower,frb_rates_parent_gbt_lower) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt-3300, spectral_index=0.00, freq_ref=freq_parent_gbt )     
+   (fluence_parent_gbt_higher,frb_rates_parent_gbt_higher) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt+15400, spectral_index=0.00, freq_ref=freq_parent_gbt )
+   plt.fill_between( fluence_parent_gbt, frb_rates_parent_gbt_lower, frb_rates_parent_gbt_higher, color='green' , alpha=0.1 )
+#   lower_error = numpy.ones(len(fluence_parent_gbt))*3300
+#   upper_error = numpy.ones(len(fluence_parent_gbt))*15400
+#   asymmetric_error = [lower_error, upper_error]
+#   plt.errorbar( fluence_parent_gbt, frb_rates_parent_gbt, yerr=asymmetric_error, fmt='.', color='green')
+#   plt.fill_between( fluence_parent_gbt, frb_rates_parent_gbt-lower_error, frb_rates_parent_gbt+upper_error, color='green' , alpha=0.1 )
    ##################################################################################################################################################################
    
    ##################################################################################################################################################################
@@ -233,33 +243,36 @@ def do_plots(options) :
    chime_color='red'
 
    # 
+   # add Ryan's point iteself (without any frequency scaling, i.e. spectral index = 0 )
+   ax_chime_point = plt.plot( [fluence_limit_chime] , [frb_rate_chime] , point_chime , color=chime_color, markersize=10 )
+   plot_list.append(ax_chime_point[0])
+   legend_list.append(r'CHIME, 600 MHz, Amiri et al., 2021 (measured)')
+
    (fluence_chime,frb_rates_chime) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_chime, frb_rate_chime, spectral_index=0, freq_ref=freq_chime )
    ax_chime =  plt.plot( fluence_chime, frb_rates_chime, linestyle='-', color=chime_color, linewidth=2, markersize=12 )
    plot_list.append(ax_chime[0])
    legend_list.append(r'CHIME, 600 MHz, Amiri et al., 2021, $\alpha$=0')
    
-   # add Ryan's point iteself (without any frequency scaling, i.e. spectral index = 0 )
-   ax_chime_point = plt.plot( [fluence_limit_chime] , [frb_rate_chime] , point_chime , color=chime_color, markersize=10 )
-   plot_list.append(ax_chime_point[0])
-   legend_list.append(r'CHIME, 600 MHz, Amiri et al., 2021')
-
    # using spectral index = -1
    (fluence_chimeM1,frb_rates_chimeM1) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_chime, frb_rate_chime, spectral_index=-1 , freq_ref=freq_chime )
-   ax_chimeM1 =  plt.plot( fluence_chimeM1,frb_rates_chimeM1, linestyle='--', color=chime_color, linewidth=2, markersize=12 )
+   ax_chimeM1 =  plt.plot( fluence_chimeM1,frb_rates_chimeM1, linestyle='-.', color=chime_color, linewidth=2, markersize=12 )
    plot_list.append(ax_chimeM1[0])
    legend_list.append(r'CHIME, 600 MHz, Amiri et al., 2021, $\alpha$=-1')
 #   legend_list.append("Shannon et al.,2018, #alpha=-1")
 
    # using flat (0) spectral index :
    (fluence_chimeM2,frb_rates_chimeM2) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_chime, frb_rate_chime, spectral_index=-2, freq_ref=freq_chime )
-   ax_chimeM2 =  plt.plot( fluence_chimeM2, frb_rates_chimeM2, linestyle='-.', color=chime_color, linewidth=2, markersize=12 )
+   ax_chimeM2 =  plt.plot( fluence_chimeM2, frb_rates_chimeM2, linestyle='--', color=chime_color, linewidth=2, markersize=12 )
    plot_list.append(ax_chimeM2[0])
    legend_list.append(r'CHIME, 600 MHz, Amiri et al., 2021, $\alpha$=-2')
    
-   lower_error = numpy.ones(len(fluence_chime))*200
-   upper_error = numpy.ones(len(fluence_chime))*220
-   asymmetric_error = [lower_error, upper_error]
-   plt.fill_between( fluence_chime, frb_rates_chime-lower_error, frb_rates_chime+upper_error, color=chime_color , alpha=0.1 )
+#   lower_error = numpy.ones(len(fluence_chime))*200
+#   upper_error = numpy.ones(len(fluence_chime))*220   
+#   asymmetric_error = [lower_error, upper_error]
+#   plt.fill_between( fluence_chime, frb_rates_chime-lower_error, frb_rates_chime+upper_error, color=chime_color , alpha=0.1 )
+   (fluence_chime_lower,frb_rates_chime_lower) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_chime, frb_rate_chime-200, spectral_index=0, freq_ref=freq_chime )
+   (fluence_chime_higher,frb_rates_chime_higher) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_chime, frb_rate_chime+220, spectral_index=0, freq_ref=freq_chime )
+   plt.fill_between( fluence_chime_lower, frb_rates_chime_lower, frb_rates_chime_higher, color=chime_color , alpha=0.1 )
 
 
    ##################################################################################################################################################################
@@ -279,15 +292,23 @@ def do_plots(options) :
    freq_lofar_pm = 150.00
    point_lofar_pm = 's'
 
+   ax_lofar_point = plt.plot( [(fluence_limit_lofar_pm_low+fluence_limit_lofar_pm_high)/2.00] , [frb_rate_lofar_pm] , point_lofar_pm , color='blue', markersize=15 )
+   plot_list.append(ax_lofar_point[0])
+   legend_list.append(r'LOFAR, 150 MHz, Pastor-Marazuela et al., 2021 (measured)')
+
    (fluence_lofar_pm,frb_rates_lofar_pm) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_lofar_pm, frb_rate_lofar_pm, spectral_index=0, freq_ref=freq_lofar_pm )
    ax_parent_lofar_pm_sp0 =  plt.plot( fluence_lofar_pm,frb_rates_lofar_pm, linestyle='-', color='blue', linewidth=2, markersize=12 )
    plot_list.append(ax_parent_lofar_pm_sp0[0])
-   legend_list.append(r'Pastor-Marazuela, (Lofar) et al., $\alpha$=0')
-   
-   lower_error = numpy.ones(len(fluence_parent_gbt))*frb_rate_lofar_pm_low
-   upper_error = numpy.ones(len(fluence_parent_gbt))*frb_rate_lofar_pm_high
-   asymmetric_error = [lower_error, upper_error]
-   plt.fill_between( fluence_lofar_pm, lower_error, upper_error,  color='blue', alpha=0.1 )
+   legend_list.append(r'LOFAR, 150 MHz, Pastor-Marazuela et al., 2021, $\alpha$=0')
+
+   # add shaded error indicating error range :
+   (fluence_lofar_low_pm,frb_rates_lofar_low_pm) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_lofar_pm_low, frb_rate_lofar_pm_low, spectral_index=0, freq_ref=freq_lofar_pm )   
+   (fluence_lofar_high_pm,frb_rates_lofar_high_pm) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_lofar_pm_high, frb_rate_lofar_pm_high, spectral_index=0, freq_ref=freq_lofar_pm )   
+#   lower_error = numpy.ones(len(fluence_lofar_pm))*frb_rate_lofar_pm_low
+#   upper_error = numpy.ones(len(fluence_lofar_pm))*frb_rate_lofar_pm_high
+#   asymmetric_error = [lower_error, upper_error]
+#   plt.fill_between( fluence_lofar_pm, lower_error, upper_error,  color='blue', alpha=0.1 )
+   plt.fill_between( fluence_lofar_low_pm, frb_rates_lofar_low_pm, frb_rates_lofar_high_pm, color='blue', alpha=0.1 )
 
    ##################################################################################################################################################################
    # LOFAR OLD : /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/FRB_Newsletter_202203/2203.04890.pdf
@@ -299,59 +320,70 @@ def do_plots(options) :
 
    ##################################################################################################################################################################
    # UTMOST : /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/FRB_Newsletter_202203/2203.04890.pdf
+   #          /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB_rates/UTMOST
    #  1/ RFRB < 1000/sky/day at 843 MHz above a fluence F > 23 Jy ms
-   #  2/ RFRB = 78 /sky/day above a fluence F > 11 Jy ms at 800 MHz 
-   #  3/ RFRB = 98 /sky/day above a fluence F > 8 Jy ms at 800 MHz 
+   #  2/ RFRB = 78 /sky/day above a fluence F > 11 Jy ms at 800 MHz ( Caleb et al, 2017 https://ui.adsabs.harvard.edu/abs/2017MNRAS.468.3746C/abstract )
+   #  3/ RFRB = 98 /sky/day above a fluence F > 8 Jy ms at 800 MHz  ( Farah et al, 2019 https://ui.adsabs.harvard.edu/abs/2019MNRAS.488.2989F/abstract )
    ##################################################################################################################################################################
    fluence_limit_utmost = 8
    frb_rate_utmost = 98
-   freq_utmost = 800.00
+   freq_utmost = 843.00
    point_utmost = 'P'
    utmost_color='pink'
 
    # 
-   (fluence_utmost,frb_rates_utmost) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_utmost, frb_rate_utmost, spectral_index=0, freq_ref=freq_utmost )
-   ax_utmost =  plt.plot( fluence_utmost, frb_rates_utmost, linestyle='-', color=utmost_color, linewidth=2, markersize=12 )
-   plot_list.append(ax_utmost[0])
-   legend_list.append(r'UTMOST,???, $\alpha$=0')
-   
    # add Ryan's point iteself (without any frequency scaling, i.e. spectral index = 0 )
    ax_utmost_point = plt.plot( [fluence_limit_utmost] , [frb_rate_utmost] , point_utmost , color=utmost_color, markersize=20 )
    plot_list.append(ax_utmost_point[0])
-   legend_list.append(r'UTMOST, 800 MHz')
-
+   legend_list.append(r'UTMOST, 843 MHz. Farah et al. (2019), (measured)')
+   
+   (fluence_utmost,frb_rates_utmost) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_utmost, frb_rate_utmost, spectral_index=0, freq_ref=freq_utmost )
+   ax_utmost =  plt.plot( fluence_utmost, frb_rates_utmost, linestyle='-', color=utmost_color, linewidth=2, markersize=12 )
+   plot_list.append(ax_utmost[0])
+   legend_list.append(r'UTMOST, 843 MHz, Farah et al. (2019), $\alpha$=0')
+   
    # using spectral index = -1
    (fluence_utmostM1,frb_rates_utmostM1) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_utmost, frb_rate_utmost, spectral_index=-1 , freq_ref=freq_utmost )
-   ax_utmostM1 =  plt.plot( fluence_utmostM1,frb_rates_utmostM1, linestyle='--', color=utmost_color, linewidth=2, markersize=12 )
+   ax_utmostM1 =  plt.plot( fluence_utmostM1,frb_rates_utmostM1, linestyle='-.', color=utmost_color, linewidth=2, markersize=12 )
    plot_list.append(ax_utmostM1[0])
-   legend_list.append(r'UTMOST,???, $\alpha$=-1')
+   legend_list.append(r'UTMOST, 843 MHz, Farah et al. (2019), $\alpha$=-1')
 #   legend_list.append("Shannon et al.,2018, #alpha=-1")
 
    # using flat (0) spectral index :
    (fluence_utmostM2,frb_rates_utmostM2) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_utmost, frb_rate_utmost, spectral_index=-2, freq_ref=freq_utmost )
-   ax_utmostM2 =  plt.plot( fluence_utmostM2, frb_rates_utmostM2, linestyle='-.', color=utmost_color, linewidth=2, markersize=12 )
+   ax_utmostM2 =  plt.plot( fluence_utmostM2, frb_rates_utmostM2, linestyle='--', color=utmost_color, linewidth=2, markersize=12 )
    plot_list.append(ax_utmostM2[0])
-   legend_list.append(r'UTMOST,???, $\alpha$=-2')
+   legend_list.append(r'UTMOST, 843 MHz, Farah et al. (2019), $\alpha$=-2')
 
 
 #   plt.legend( legend_list, loc=legend_location, fontsize=20)
-   plt.legend( plot_list, legend_list, loc=legend_location, fontsize=10)
+   plt.legend( plot_list, legend_list, loc=legend_location, fontsize=10, ncol=2)
 
    # mark region : https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.html
    # plt.axhspan(ymin, ymax[, xmin, xmax])   
 #   plt.axhspan( 0.0001, 200, 90, 1000, alpha=0.3, facecolor='0.5' )
-   plt.axvspan( 200, 10000, ymin=0.235, ymax=0.535, alpha=0.5, facecolor='red' )
+#   plt.axvspan( 200, 10000, ymin=0.235, ymax=0.535, alpha=0.5, facecolor='red' )
    # legend of the span :
-   plt.axvspan( 10, 600, ymin=0.94, ymax=0.99, alpha=0.5, facecolor='red' )
-   plt.text(15,14000000,"FRB rate below 350 MHz based on the literature",fontsize=15)
-
+   plt.axvspan( 1, 30, ymin=0.94, ymax=1.1, alpha=0.5, facecolor='red' )
+   desc = (r' Most likely FRB rate at %d MHz given existing' % (options.freq_mhz))
+   plt.text(1,3500000,desc,fontsize=15)
+   desc = (r'measurements, $\alpha$ <= -1 and Euclidean Universe')
+   plt.text(1,1700000,desc,fontsize=15)
+ 
+#   points = [[100, 2], [100,600], [10000, 0.6], [10000, 0.002] ]
+   points = [[100, 1], [100,170], [9000, 0.18], [9000, 0.001] ]
+   polygon= plt.Polygon(points,  fill=True, color='red' , alpha=0.5, edgecolor='r', figure=fig)
+   # plt.add_patch(polygon)
+   plt.gca().add_patch(polygon)
 
    
    plt.xlabel('Fluence [Jy ms]' , fontsize=30 )
    plt.ylabel('#FRBs / day / sky' , fontsize=30 )
    plt.xscale('log')
    plt.yscale('log')
-
+   
+   if options.show_grid :
+      plt.grid()
    plt.savefig( "frb_rates.png" )
    plt.show()   
 
