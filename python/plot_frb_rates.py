@@ -1,3 +1,5 @@
+# see also : /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/logbook//20220416_FRB_limits_summary.odt
+# 
 from optparse import OptionParser
 
 # plotting :
@@ -360,6 +362,50 @@ def do_plots(options) :
       ax_utmostM2 =  plt.plot( fluence_utmostM2, frb_rates_utmostM2, linestyle='--', color=utmost_color, linewidth=2, markersize=12 )
       plot_list.append(ax_utmostM2[0])
       legend_list.append(r'UTMOST, 843 MHz, Farah et al. (2019), $\alpha$=-2')
+
+
+   ##################################################################################################################################################################
+   # PARKES : see /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/logbook//20220416_FRB_limits_summary.odt
+   #   /home/msok/Desktop/GRANTS/2021/LIEF/SECTIONS/references/FRB/Parkes/
+   #   Shivani Bhendari : https://ui.adsabs.harvard.edu/abs/2018MNRAS.475.1427B/abstract
+   #   Not good : https://ui.adsabs.harvard.edu/abs/2019MNRAS.488.2989F/abstract
+   ##################################################################################################################################################################
+   fluence_limit_parkes = 2
+   frb_rate_parkes = 1.7*1000
+   freq_parkes = 1350.00 # 1200 - 1500 MHz 
+   point_parkes = 'd'
+   parkes_color='magenta'
+   
+   # https://ui.adsabs.harvard.edu/abs/2019MNRAS.488.2989F/abstract 81 FRBs X. Yang 
+   # fluence_limit_parkes = 0.33
+   # frb_rate_parkes 
+
+   # 
+   # add Ryan's point iteself (without any frequency scaling, i.e. spectral index = 0 )
+   ax_parkes_point = plt.plot( [fluence_limit_parkes] , [frb_rate_parkes] , point_parkes , color=parkes_color, markersize=15 )
+   plot_list.append(ax_parkes_point[0])
+   legend_list.append(r'Parkes, 1350 MHz. Bhandari et al. (2018), (measured)')
+   
+   (fluence_parkes,frb_rates_parkes) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parkes, frb_rate_parkes, spectral_index=0, freq_ref=freq_parkes )
+   ax_parkes =  plt.plot( fluence_parkes, frb_rates_parkes, linestyle='-', color=parkes_color, linewidth=2, markersize=12 )
+   plot_list.append(ax_parkes[0])
+   legend_list.append(r'Parkes, 1350 MHz. Bhandari et al. (2018), $\alpha$=0')
+   
+   # using spectral index = -1
+   (fluence_parkesM1,frb_rates_parkesM1) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parkes, frb_rate_parkes, spectral_index=-1 , freq_ref=freq_parkes )
+   ax_parkesM1 =  plt.plot( fluence_parkesM1,frb_rates_parkesM1, linestyle='-.', color=parkes_color, linewidth=2, markersize=12 )
+   plot_list.append(ax_parkesM1[0])
+   legend_list.append(r'Parkes, 1350 MHz. Bhandari et al. (2018), $\alpha$=-1')
+#   legend_list.append("Shannon et al.,2018, #alpha=-1")
+
+   # using flat (0) spectral index :
+   if options.include_alpha_minus2 :
+      (fluence_parkesM2,frb_rates_parkesM2) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parkes, frb_rate_parkes, spectral_index=-2, freq_ref=freq_parkes )
+      ax_parkesM2 =  plt.plot( fluence_parkesM2, frb_rates_parkesM2, linestyle='--', color=parkes_color, linewidth=2, markersize=12 )
+      plot_list.append(ax_parkesM2[0])
+      legend_list.append(r'Parkes, 1350 MHz. Bhandari et al. (2018), $\alpha$=-2')
+
+
 
 
 #   plt.legend( legend_list, loc=legend_location, fontsize=20)

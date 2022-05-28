@@ -16,7 +16,7 @@ def parse_options(idx):
    parser.add_option('-b','--bw','--bandwidth',dest="bandwidth_mhz",default=31.25, help="Observing bandwidth in MHz [default %default MHz]",type="float")
    parser.add_option('-s','--sefd','--telescope_sefd','--station_sefd',dest="sefd",default=2500, help="System Equivalent Flux Density (SEFD) in Jy [default %default Jy]",type="float")
    parser.add_option('-p','--n_pols','--npols','--np','--number_polarisations',dest="npol",default=2, help="Number of polarisations [default %default]",type="int")
-   parser.add_option('-c','--n_chan','--nchan','--nc','--number_channels',dest="nchan",default=40, help="Number of channels [default %default]",type="int")
+   parser.add_option('-c','--n_chan','--nchan','--nc','--number_channels','--n_channels',dest="nchan",default=40, help="Number of channels [default %default]",type="int")
    parser.add_option('--size','--pixels','--px','--npx',dest="n_pixels",default=200, help="Image size in pixels [default %default]",type="int")
    parser.add_option('-d','--dispdelay','--dispersion_delay',dest="dispersion_delay",default=38.9, help="Dipersion delay in seconds [default %default seconds]",type="float")
    parser.add_option('--pixel_size','--n_bytes','--nbytes','--bytes_per_pixel',dest="bytes_per_pixel",default=4, help="Number of bytes per pixel [default %default]",type="int")
