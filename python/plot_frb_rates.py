@@ -14,6 +14,8 @@ import copy
 import time
 import math
 from scipy.interpolate import interp1d # for interpolation 
+from scipy import stats
+
 
 import matplotlib
 matplotlib.rc('xtick', labelsize=25) 
@@ -45,6 +47,7 @@ def parse_options(idx):
 #   parser.add_option('-a','--azim','--azim_deg',dest="azim_deg",default=None, help="Pointing direction azimuth in degrees [default %default]",metavar="float",type="float")
    parser.add_option('-f','--freq','--freq_mhz',dest="freq_mhz",default=200.00, help="Survey frequency in MHz [default %default MHz]",metavar="float",type="float")
    parser.add_option('--include_alpha_minus2','--alpha_minus2',action="store_true",dest="include_alpha_minus2",default=False, help="Include curves for spectral index alpha -2 [default %default]")
+   parser.add_option('--legend_with_curves','--include_curves',action="store_true",dest="legend_with_curves",default=False, help="Include curves in the legend [default %default]")
    (options, args) = parser.parse_args(sys.argv[idx:])
 
    print("#####################################################################################################")
@@ -52,6 +55,7 @@ def parse_options(idx):
    print("#####################################################################################################")
    print("Frequency = %.2f [MHz]" % (options.freq_mhz))
    print("Include alpha = -2 : %s" % (options.include_alpha_minus2))
+   print("Legend with curves = %s" % (options.legend_with_curves))
    print("#####################################################################################################")
    
    return (options, args)
@@ -123,6 +127,9 @@ def do_plots(options) :
    plt.figure( figsize=( fig_size_x , fig_size_y ) )
    fig = plt.gcf()
    
+   survey_threshold = []
+   survey_frb_rate = []
+   
    ##################################################################################################################################################################       
    #                                   Tingay et al (2015) : /home/msok//Desktop/GRANTS/2020/LIEF/SECTIONS/references/LOW_FREQ_NON-DETECTIONS/Tingay_2015_AJ_150_199_MS.pdf   
    # Antonina R. : RFRB < 82 /sky/day at 182 MHz, above a fluence of F > 7980 Jy ms (not a strong limit -> not plotted)
@@ -156,6 +163,9 @@ def do_plots(options) :
    freq_shannon = 1400.00
    point_rshannon = 's'
    
+   survey_threshold.append( fluence_limit_rshannon )
+   survey_frb_rate.append( frb_rate_rshannon )
+   
    # add Ryan's point iteself (without any frequency scaling, i.e. spectral index = 0 )
    ax_rshannon_point = plt.plot( [fluence_limit_rshannon] , [frb_rate_rshannon] , point_rshannon , color='orange', markersize=15 )
    plot_list.append(ax_rshannon_point[0])
@@ -165,21 +175,24 @@ def do_plots(options) :
       # using Ryan Shannon et al, (2018)  spectral index from ASKAP :
       (fluence_rshannon,frb_rates_rshannon) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_rshannon, frb_rate_rshannon, spectral_index=spectral_index_rshannon, freq_ref=freq_shannon )
       ax_rshannon =  plt.plot( fluence_rshannon,frb_rates_rshannon, linestyle='--', color='orange', linewidth=2, markersize=12 )
-      plot_list.append(ax_rshannon[0])
-      legend_list.append(r'ASKAP, 1.4 GHz, Shannon et al.,2018, $\alpha$=-2.1')
+      if options.legend_with_curves :      
+         plot_list.append(ax_rshannon[0])
+         legend_list.append(r'ASKAP, 1.4 GHz, Shannon et al.,2018, $\alpha$=-2.1')
    
    # using spectral index = -1
    (fluence_rshannonM1,frb_rates_rshannonM1) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_rshannon, frb_rate_rshannon, spectral_index=-1 , freq_ref=freq_shannon )
    ax_rshannonM1 =  plt.plot( fluence_rshannonM1,frb_rates_rshannonM1, linestyle='-.', color='orange', linewidth=2, markersize=12 )
-   plot_list.append(ax_rshannonM1[0])
-   legend_list.append(r'ASKAP, 1.4 GHz, Shannon et al.,2018, $\alpha$=-1')
+   if options.legend_with_curves :
+      plot_list.append(ax_rshannonM1[0])
+      legend_list.append(r'ASKAP, 1.4 GHz, Shannon et al.,2018, $\alpha$=-1')
 #   legend_list.append("Shannon et al.,2018, #alpha=-1")
 
    # using flat (0) spectral index :
    (fluence_rshannon0,frb_rates_rshannon0) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_rshannon, frb_rate_rshannon, spectral_index=0 , freq_ref=freq_shannon )
    ax_rshannon0 =  plt.plot( fluence_rshannon0,frb_rates_rshannon0, linestyle='-', color='orange', linewidth=2, markersize=12 )
-   plot_list.append(ax_rshannon0[0])
-   legend_list.append(r'ASKAP, 1.4 GHz, Shannon et al.,2018, $\alpha$=0')
+   if options.legend_with_curves :
+      plot_list.append(ax_rshannon0[0])
+      legend_list.append(r'ASKAP, 1.4 GHz, Shannon et al.,2018, $\alpha$=0')
 #   legend_list.append("Shannon et al.,2018, #alpha=0")
    ##################################################################################################################################################################
 
@@ -200,6 +213,10 @@ def do_plots(options) :
    spectral_index_parent_gbt  = 0. # 350 MHz is very close to we can assume pessimistic (specrtal index = 0) scenario
    freq_parent_gbt = 350.00
    point_parent_gbt = 'o'
+   
+   survey_threshold.append( fluence_limit_parent_gbt )
+   survey_frb_rate.append( frb_rate_parent_gbt )
+
 
    # add GBT point itself -  (without any frequency scaling, i.e. spectral index = 0 )
    ax_parent_point = plt.plot( [fluence_limit_parent_gbt] , [frb_rate_parent_gbt] , point_parent_gbt , color='green', markersize=15 )
@@ -209,18 +226,21 @@ def do_plots(options) :
    if options.include_alpha_minus2 :
       (fluence_parent_gbt,frb_rates_parent_gbt) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt, spectral_index=-2, freq_ref=freq_parent_gbt )
       ax_parent_gbtM2 =  plt.plot( fluence_parent_gbt, frb_rates_parent_gbt, linestyle='--', color='green', linewidth=2, markersize=12 )
-      plot_list.append(ax_parent_gbtM2[0])
-      legend_list.append(r'GBT, 350 MHz, Parent et al., 2020, $\alpha$=-2')
+      if options.legend_with_curves :
+         plot_list.append(ax_parent_gbtM2[0])
+         legend_list.append(r'GBT, 350 MHz, Parent et al., 2020, $\alpha$=-2')
 
    (fluence_parent_gbt,frb_rates_parent_gbt) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt, spectral_index=-1, freq_ref=freq_parent_gbt )
    ax_parent_gbtM1 =  plt.plot( fluence_parent_gbt,frb_rates_parent_gbt, linestyle='-.', color='green', linewidth=2, markersize=12 )
-   plot_list.append(ax_parent_gbtM1[0])
-   legend_list.append(r'GBT, 350 MHz, Parent et al., 2020, $\alpha$=-1')
+   if options.legend_with_curves :
+      plot_list.append(ax_parent_gbtM1[0])
+      legend_list.append(r'GBT, 350 MHz, Parent et al., 2020, $\alpha$=-1')
 
    (fluence_parent_gbt,frb_rates_parent_gbt) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt, spectral_index=0.00, freq_ref=freq_parent_gbt )
    ax_parent_gbt =  plt.plot( fluence_parent_gbt,frb_rates_parent_gbt, linestyle='-', color='green', linewidth=2, markersize=12 )
-   plot_list.append(ax_parent_gbt[0])
-   legend_list.append(r'GBT, 350 MHz, Parent et al., 2020, $\alpha$=0')   
+   if options.legend_with_curves :
+      plot_list.append(ax_parent_gbt[0])
+      legend_list.append(r'GBT, 350 MHz, Parent et al., 2020, $\alpha$=0')   
  
    (fluence_parent_gbt_lower,frb_rates_parent_gbt_lower) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt-3300, spectral_index=0.00, freq_ref=freq_parent_gbt )     
    (fluence_parent_gbt_higher,frb_rates_parent_gbt_higher) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parent_gbt, frb_rate_parent_gbt+15400, spectral_index=0.00, freq_ref=freq_parent_gbt )
@@ -247,6 +267,9 @@ def do_plots(options) :
    freq_chime = 600.00
    point_chime = 'D'
    chime_color='red'
+   
+   survey_threshold.append( fluence_limit_chime ) 
+   survey_frb_rate.append( frb_rate_chime )
 
    # 
    # add Ryan's point iteself (without any frequency scaling, i.e. spectral index = 0 )
@@ -256,22 +279,25 @@ def do_plots(options) :
 
    (fluence_chime,frb_rates_chime) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_chime, frb_rate_chime, spectral_index=0, freq_ref=freq_chime )
    ax_chime =  plt.plot( fluence_chime, frb_rates_chime, linestyle='-', color=chime_color, linewidth=2, markersize=12 )
-   plot_list.append(ax_chime[0])
-   legend_list.append(r'CHIME, 600 MHz, Amiri et al., 2021, $\alpha$=0')
+   if options.legend_with_curves :
+      plot_list.append(ax_chime[0])
+      legend_list.append(r'CHIME, 600 MHz, Amiri et al., 2021, $\alpha$=0')
    
    # using spectral index = -1
    (fluence_chimeM1,frb_rates_chimeM1) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_chime, frb_rate_chime, spectral_index=-1 , freq_ref=freq_chime )
    ax_chimeM1 =  plt.plot( fluence_chimeM1,frb_rates_chimeM1, linestyle='-.', color=chime_color, linewidth=2, markersize=12 )
-   plot_list.append(ax_chimeM1[0])
-   legend_list.append(r'CHIME, 600 MHz, Amiri et al., 2021, $\alpha$=-1')
+   if options.legend_with_curves :
+      plot_list.append(ax_chimeM1[0])
+      legend_list.append(r'CHIME, 600 MHz, Amiri et al., 2021, $\alpha$=-1')
 #   legend_list.append("Shannon et al.,2018, #alpha=-1")
 
    # using flat (0) spectral index :
    if options.include_alpha_minus2 :
       (fluence_chimeM2,frb_rates_chimeM2) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_chime, frb_rate_chime, spectral_index=-2, freq_ref=freq_chime )
       ax_chimeM2 =  plt.plot( fluence_chimeM2, frb_rates_chimeM2, linestyle='--', color=chime_color, linewidth=2, markersize=12 )
-      plot_list.append(ax_chimeM2[0])
-      legend_list.append(r'CHIME, 600 MHz, Amiri et al., 2021, $\alpha$=-2')
+      if options.legend_with_curves :
+         plot_list.append(ax_chimeM2[0])
+         legend_list.append(r'CHIME, 600 MHz, Amiri et al., 2021, $\alpha$=-2')
    
 #   lower_error = numpy.ones(len(fluence_chime))*200
 #   upper_error = numpy.ones(len(fluence_chime))*220   
@@ -294,7 +320,7 @@ def do_plots(options) :
    frb_rate_lofar_pm_high = 450
    frb_rate_lofar_pm = (frb_rate_lofar_pm_low + frb_rate_lofar_pm_high) / 2.00
    fluence_limit_lofar_pm = (fluence_limit_lofar_pm_low+fluence_limit_lofar_pm_high)/2.00
-   
+         
    spectral_index_lofar_pm  = 0. # 150 MHz is very close to we can assume pessimistic (specrtal index = 0) scenario
    freq_lofar_pm = 150.00
    point_lofar_pm = 's'
@@ -305,8 +331,9 @@ def do_plots(options) :
 
    (fluence_lofar_pm,frb_rates_lofar_pm) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_lofar_pm, frb_rate_lofar_pm, spectral_index=0, freq_ref=freq_lofar_pm )
    ax_parent_lofar_pm_sp0 =  plt.plot( fluence_lofar_pm,frb_rates_lofar_pm, linestyle='-', color='blue', linewidth=2, markersize=12 )
-   plot_list.append(ax_parent_lofar_pm_sp0[0])
-   legend_list.append(r'LOFAR, 150 MHz, Pastor-Marazuela et al., 2021, $\alpha$=0')
+   if options.legend_with_curves :
+      plot_list.append(ax_parent_lofar_pm_sp0[0])
+      legend_list.append(r'LOFAR, 150 MHz, Pastor-Marazuela et al., 2021, $\alpha$=0')
 
    # add shaded error indicating error range :
    (fluence_lofar_low_pm,frb_rates_lofar_low_pm) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_lofar_pm_low, frb_rate_lofar_pm_low, spectral_index=0, freq_ref=freq_lofar_pm )   
@@ -337,6 +364,9 @@ def do_plots(options) :
    freq_utmost = 843.00
    point_utmost = 'P'
    utmost_color='pink'
+   
+   survey_threshold.append( fluence_limit_utmost )
+   survey_frb_rate.append( frb_rate_utmost )
 
    # 
    # add Ryan's point iteself (without any frequency scaling, i.e. spectral index = 0 )
@@ -346,22 +376,25 @@ def do_plots(options) :
    
    (fluence_utmost,frb_rates_utmost) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_utmost, frb_rate_utmost, spectral_index=0, freq_ref=freq_utmost )
    ax_utmost =  plt.plot( fluence_utmost, frb_rates_utmost, linestyle='-', color=utmost_color, linewidth=2, markersize=12 )
-   plot_list.append(ax_utmost[0])
-   legend_list.append(r'UTMOST, 843 MHz, Farah et al. (2019), $\alpha$=0')
+   if options.legend_with_curves :
+      plot_list.append(ax_utmost[0])
+      legend_list.append(r'UTMOST, 843 MHz, Farah et al. (2019), $\alpha$=0')
    
    # using spectral index = -1
    (fluence_utmostM1,frb_rates_utmostM1) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_utmost, frb_rate_utmost, spectral_index=-1 , freq_ref=freq_utmost )
    ax_utmostM1 =  plt.plot( fluence_utmostM1,frb_rates_utmostM1, linestyle='-.', color=utmost_color, linewidth=2, markersize=12 )
-   plot_list.append(ax_utmostM1[0])
-   legend_list.append(r'UTMOST, 843 MHz, Farah et al. (2019), $\alpha$=-1')
+   if options.legend_with_curves :
+      plot_list.append(ax_utmostM1[0])
+      legend_list.append(r'UTMOST, 843 MHz, Farah et al. (2019), $\alpha$=-1')
 #   legend_list.append("Shannon et al.,2018, #alpha=-1")
 
    # using flat (0) spectral index :
    if options.include_alpha_minus2 :
       (fluence_utmostM2,frb_rates_utmostM2) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_utmost, frb_rate_utmost, spectral_index=-2, freq_ref=freq_utmost )
       ax_utmostM2 =  plt.plot( fluence_utmostM2, frb_rates_utmostM2, linestyle='--', color=utmost_color, linewidth=2, markersize=12 )
-      plot_list.append(ax_utmostM2[0])
-      legend_list.append(r'UTMOST, 843 MHz, Farah et al. (2019), $\alpha$=-2')
+      if options.legend_with_curves :
+         plot_list.append(ax_utmostM2[0])
+         legend_list.append(r'UTMOST, 843 MHz, Farah et al. (2019), $\alpha$=-2')
 
 
    ##################################################################################################################################################################
@@ -376,6 +409,10 @@ def do_plots(options) :
    point_parkes = 'd'
    parkes_color='magenta'
    
+   survey_threshold.append( fluence_limit_parkes )
+   survey_frb_rate.append( frb_rate_parkes )
+
+   
    # https://ui.adsabs.harvard.edu/abs/2019MNRAS.488.2989F/abstract 81 FRBs X. Yang 
    # fluence_limit_parkes = 0.33
    # frb_rate_parkes 
@@ -388,28 +425,34 @@ def do_plots(options) :
    
    (fluence_parkes,frb_rates_parkes) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parkes, frb_rate_parkes, spectral_index=0, freq_ref=freq_parkes )
    ax_parkes =  plt.plot( fluence_parkes, frb_rates_parkes, linestyle='-', color=parkes_color, linewidth=2, markersize=12 )
-   plot_list.append(ax_parkes[0])
-   legend_list.append(r'Parkes, 1350 MHz. Bhandari et al. (2018), $\alpha$=0')
+   if options.legend_with_curves :
+      plot_list.append(ax_parkes[0])
+      legend_list.append(r'Parkes, 1350 MHz. Bhandari et al. (2018), $\alpha$=0')
    
    # using spectral index = -1
    (fluence_parkesM1,frb_rates_parkesM1) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parkes, frb_rate_parkes, spectral_index=-1 , freq_ref=freq_parkes )
    ax_parkesM1 =  plt.plot( fluence_parkesM1,frb_rates_parkesM1, linestyle='-.', color=parkes_color, linewidth=2, markersize=12 )
-   plot_list.append(ax_parkesM1[0])
-   legend_list.append(r'Parkes, 1350 MHz. Bhandari et al. (2018), $\alpha$=-1')
+   if options.legend_with_curves :
+      plot_list.append(ax_parkesM1[0])
+      legend_list.append(r'Parkes, 1350 MHz. Bhandari et al. (2018), $\alpha$=-1')
 #   legend_list.append("Shannon et al.,2018, #alpha=-1")
 
    # using flat (0) spectral index :
    if options.include_alpha_minus2 :
       (fluence_parkesM2,frb_rates_parkesM2) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parkes, frb_rate_parkes, spectral_index=-2, freq_ref=freq_parkes )
       ax_parkesM2 =  plt.plot( fluence_parkesM2, frb_rates_parkesM2, linestyle='--', color=parkes_color, linewidth=2, markersize=12 )
-      plot_list.append(ax_parkesM2[0])
-      legend_list.append(r'Parkes, 1350 MHz. Bhandari et al. (2018), $\alpha$=-2')
+      if options.legend_with_curves :
+         plot_list.append(ax_parkesM2[0])
+         legend_list.append(r'Parkes, 1350 MHz. Bhandari et al. (2018), $\alpha$=-2')
 
 
 
 
 #   plt.legend( legend_list, loc=legend_location, fontsize=20)
-   plt.legend( plot_list, legend_list, loc=legend_location, fontsize=10, ncol=2)
+   legend_ncol=2 
+   if not options.legend_with_curves :
+      legend_ncol=1
+   plt.legend( plot_list, legend_list, loc=legend_location, fontsize=14, ncol=legend_ncol)
 
    # mark region : https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.html
    # plt.axhspan(ymin, ymax[, xmin, xmax])   
@@ -417,17 +460,20 @@ def do_plots(options) :
 #   plt.axvspan( 200, 10000, ymin=0.235, ymax=0.535, alpha=0.5, facecolor='red' )
    # legend of the span :
 # OLD AT TOP  plt.axvspan( 1, 30, ymin=0.94, ymax=1.1, alpha=0.5, facecolor='red' )
-   plt.axvspan( 1, 700, ymin=0.01, ymax=0.22, alpha=0.5, facecolor='red' )
-   desc = (r' Red colour marks the region where given the existing measurements and') # Red marks the region above a threshold of 100 Jy ms,
-   plt.text(1,0.005,desc,fontsize=18)
-   desc = (r' their errors scaled to %d MHz using spectral index $\alpha=$0 or $\alpha=$-1, and' % (options.freq_mhz))
-   plt.text(1,0.002,desc,fontsize=18)
-   desc = (r' assuming Euclidean Universe, the number of FRBs with fluence 100 Jy ms is')
-   plt.text(1,0.0008,desc,fontsize=18)
-   desc = (r' between 0.2 and 180 per day ($\sim$360 - 65000 per year) and decreases at ')
-   plt.text(1,0.0003,desc,fontsize=18)
-   desc = (r' higher fluences according to $\propto F^{-3/2}$ scaling')
-   plt.text(1,0.0001,desc,fontsize=18)
+   fontsize=20
+   start_region=0.7
+   plt.axvspan( start_region, 1400, ymin=0.01, ymax=0.22, alpha=0.5, facecolor='red' )
+#   esc = (r' Red colour marks the region with fluences (F) $\ge$100 Jy ms.') # Red marks the region above a threshold of 100 Jy ms,
+   desc = (r' The existing measurements (data points) and their errors (shaded regions)') # Red marks the region above a threshold of 100 Jy ms,
+   plt.text(start_region,0.005,desc,fontsize=fontsize)
+   desc = (r' scaled to %d MHz using spectral index $\alpha=$0 (solid lines) and $\alpha=$-1 (dashed ' % (options.freq_mhz))
+   plt.text(start_region,0.002,desc,fontsize=fontsize)
+   desc = (r' dotted lines). The red colour marks the region with fluences (F) $>$100 Jy ms')
+   plt.text(start_region,0.0008,desc,fontsize=fontsize)
+   desc = (r' where the FRB rate is between 0.2 and 180 per day ($\sim$360 - 65000 per year)')
+   plt.text(start_region,0.0003,desc,fontsize=fontsize)
+   desc = (r' and decreases according to $\propto F^{-3/2}$ scaling for the Euclidean Universe.')
+   plt.text(start_region,0.0001,desc,fontsize=fontsize)
 # OLD AT TOP  plt.text(1,3500000,desc,fontsize=15)
 #   desc = (r'measurements, $\alpha$ <= -1 and Euclidean Universe')
 # OLD AT TOP   plt.text(1,1700000,desc,fontsize=15)
@@ -438,6 +484,40 @@ def do_plots(options) :
    # plt.add_patch(polygon)
    plt.gca().add_patch(polygon)
 
+
+   # fit line to data points :
+   # need to log10 data points 
+   # stats.linregress(x_arr,y_arr)
+   x_arr = numpy.log10( survey_threshold )
+   y_arr = numpy.log10( survey_frb_rate )
+#   slope,intercept, rval, pval, stderr = stats.linregress(x_arr,y_arr)
+   coeffs = np.polyfit(x_arr,y_arr,deg=1)
+   slope = coeffs[0]
+   intercept = coeffs[1]
+   print("DEBUG FIT : slope = %.4f , intercept = %.4f" % (slope,intercept))
+   max_fluence = 5000
+   x_arr_plot = numpy.arange( 1 , max_fluence+1 )
+   y_arr_plot = numpy.ones( max_fluence , dtype=numpy.float64 ) # dtype=
+   y_arr_plot_log = numpy.ones( max_fluence , dtype=numpy.float64 )
+
+   
+   i=0
+   c = math.pow(10.00,intercept)
+   print("DEBUG_FIT c = %.8f" % (c))
+   for x in x_arr_plot :
+      y_log = slope*math.log10(x) + intercept
+      y_arr_plot_log[i] = y_log
+      # y_arr_plot[i] = math.pow( 10.00, y_log )
+      p = math.pow(x,slope)
+      y_arr_plot[i] = c*p
+      # y_log = math.log10(y_arr_plot[i])
+      if int(x) % 10 == 0 :
+         frbs_per_day = y_arr_plot[i]
+         frbs_per_year = frbs_per_day*365.00
+         print("DEBUG : %.4f %.4f -> %.8f %.8f (from %.8f*%.8f) -> %.8f FRBs / day -> %.4f FRBs / year" % (x,math.log10(x),y_arr_plot[i],y_log,c,p,frbs_per_day,frbs_per_year))
+      i += 1
+   ax_fit =  plt.plot( x_arr_plot, y_arr_plot, linestyle='-', color='black', linewidth=2 )
+#   matplotlib.pyplot.loglog( numpy.log10( x_arr_plot ), y_arr_plot_log )
    
    plt.xlabel('Fluence [Jy ms]' , fontsize=30 )
    plt.ylabel('#FRBs / day / sky' , fontsize=30 )
@@ -446,6 +526,7 @@ def do_plots(options) :
    
    if options.show_grid :
       plt.grid()
+   plt.ylim(( 0.00006,  1e6 ))      
    plt.savefig( "frb_rates.png" )
    plt.show()   
 
