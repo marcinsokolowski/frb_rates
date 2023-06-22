@@ -9,6 +9,10 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib.dates as md  # to convert unix time to date on X-axis 
 import matplotlib.patches as patches
+# from matplotlib.ticker import LogLocator
+from matplotlib.ticker import FormatStrFormatter
+from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
+
 import os
 import copy
 import time
@@ -126,6 +130,21 @@ def do_plots(options) :
 
    plt.figure( figsize=( fig_size_x , fig_size_y ) )
    fig = plt.gcf()
+   plt.xlim(( 0.8, 10000 ))   
+   # plt.yticks( numpy.array([0.01,0.05,0.1,0.5,1.00,5,10.,100,1000,10000,100000]) )
+#   plt.yticks( [0.01,0.05,0.1,0.5,1.00,5,10.,100,1000,10000,100000] )   
+   axes = plt.gca()
+   axes.set_yscale('log')
+   plt.yticks( [0.01,0.1,10] )
+#   plt.tick_params(axis='y', which='minor')
+#   ax_x.yaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
+   # Make a plot with major ticks that are multiples of 20 and minor ticks that
+   # are multiples of 5.  Label major ticks with '.0f' formatting but don't label
+   # minor ticks.  The string is used directly, the `StrMethodFormatter` is
+   # created automatically.
+#   axes.yaxis.set_major_locator(MultipleLocator(0.1))
+   # ax_x.yaxis.set_major_formatter('{x:.0f}')
+   
    
    survey_threshold = []
    survey_frb_rate = []
@@ -144,11 +163,12 @@ def do_plots(options) :
       ax3 = plt.plot( [fluence_limit_tingay] , [frb_rate_tingay] , point_tingay , linestyle='dashed', color='green', linewidth=2, markersize=10 )
       plot_list.append(ax3[0])   
       legend_list.append("MWA, 154 MHz, Tingay et al.,2015")
-      plt.xlim(( 1, 10000 ))
+#      plt.xlim(( 1, 10000 ))
+      # ax1.yaxis.set_major_locator(MultipleLocator(0.1))
    else :
       print("WARNING : upper limit from Tingay et al. 2015 not shown")
 #   ax1.set_xlim(1,10000)
-#   legend_list.append("Tingay et al.,2015, 154 MHz")
+#   legend_list.append("Tingay et al.,2015, 154 MHz")  
    ##################################################################################################################################################################
    
    ##################################################################################################################################################################   
@@ -428,6 +448,7 @@ def do_plots(options) :
    if options.legend_with_curves :
       plot_list.append(ax_parkes[0])
       legend_list.append(r'Parkes, 1350 MHz. Bhandari et al. (2018), $\alpha$=0')
+#   ax_parkes.yaxis.set_major_locator(LogLocator(base=1))      
    
    # using spectral index = -1
    (fluence_parkesM1,frb_rates_parkesM1) = calc_frb_rates_vs_fluence( options.freq_mhz, fluence_limit_parkes, frb_rate_parkes, spectral_index=-1 , freq_ref=freq_parkes )
@@ -449,10 +470,11 @@ def do_plots(options) :
 
 
 #   plt.legend( legend_list, loc=legend_location, fontsize=20)
+   fontsize=10
    legend_ncol=2 
    if not options.legend_with_curves :
       legend_ncol=1
-   plt.legend( plot_list, legend_list, loc=legend_location, fontsize=14, ncol=legend_ncol)
+   plt.legend( plot_list, legend_list, loc=legend_location, fontsize=fontsize, ncol=legend_ncol) # 14
 
    # mark region : https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.html
    # plt.axhspan(ymin, ymax[, xmin, xmax])   
@@ -461,7 +483,7 @@ def do_plots(options) :
    # legend of the span :
 # OLD AT TOP  plt.axvspan( 1, 30, ymin=0.94, ymax=1.1, alpha=0.5, facecolor='red' )
    fontsize=20
-   start_region=0.7
+   start_region=0.9
    plt.axvspan( start_region, 1400, ymin=0.01, ymax=0.22, alpha=0.5, facecolor='red' )
 #   esc = (r' Red colour marks the region with fluences (F) $\ge$100 Jy ms.') # Red marks the region above a threshold of 100 Jy ms,
    desc = (r' The existing measurements (data points) and their errors (shaded regions)') # Red marks the region above a threshold of 100 Jy ms,
@@ -523,10 +545,15 @@ def do_plots(options) :
    plt.ylabel('#FRBs / day / sky' , fontsize=30 )
    plt.xscale('log')
    plt.yscale('log')
-   
+      
    if options.show_grid :
       plt.grid()
    plt.ylim(( 0.00006,  1e6 ))      
+   y_axis_ticks  = numpy.array([0.01,0.05,0.1,0.3,0.5,1.00,5,10.,100,1000,10000,100000])
+   y_axis_labels = [ '{}'.format(i) for i in y_axis_ticks ]
+   plt.yticks( y_axis_ticks , y_axis_labels , fontsize=15 )
+   # ax_fit.yaxis.set_major_locator(LogLocator(base=1))
+   
    plt.savefig( "frb_rates.png" )
    plt.show()   
 
