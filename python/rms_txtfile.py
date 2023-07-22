@@ -114,5 +114,6 @@ if __name__ == '__main__':
    # print "pval = {0}".format(pval)
    # print "stderr = {0}".format(stderr)
          
-   print("%.4f +/- %.4f" % (mean_y,rms_y))
+   print("FRBs per day  : %.4f +/- %.4f" % (mean_y,rms_y))
+   print("FRBs per year : %.4f +/- %.4f" % (mean_y*365,rms_y*365))
    
