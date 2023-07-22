@@ -1,0 +1,58 @@
+#!/bin/bash
+
+
+python /home/msok/github/frb_rates/python/plot_frb_rates.py --grid --legend_with_curves --fluence_threshold=580 > out 2>&1
+
+# the numbers are as in the caption to figure 3 in the paper:
+# 10ms :
+# 1 channel : 
+cat chime.txt GBT_Parent_et_al_2020.txt  Parkes_Bhandari_et_al_2018.txt  shannon_et_al_2018.txt  UTMOST_Farash_et_al_2019.txt | awk '{if($1==25924){print $0;}}' > eda2_1channel_2000ms.txt
+python ~/github/frb_rates/python/rms_txtfile.py eda2_1channel_2000ms.txt > eda2_1channel_2000ms.rate
+
+cat chime.txt GBT_Parent_et_al_2020.txt  Parkes_Bhandari_et_al_2018.txt  shannon_et_al_2018.txt  UTMOST_Farash_et_al_2019.txt | awk '{if($1==18331){print $0;}}' > eda2_1channel_1000ms.txt
+python ~/github/frb_rates/python/rms_txtfile.py eda2_1channel_1000ms.txt > eda2_1channel_1000ms.rate
+
+cat chime.txt GBT_Parent_et_al_2020.txt  Parkes_Bhandari_et_al_2018.txt  shannon_et_al_2018.txt  UTMOST_Farash_et_al_2019.txt | awk '{if($1==5797){print $0;}}' > eda2_1channel_100ms.txt
+python ~/github/frb_rates/python/rms_txtfile.py eda2_1channel_100ms.txt > eda2_1channel_100ms.rate
+
+cat chime.txt GBT_Parent_et_al_2020.txt  Parkes_Bhandari_et_al_2018.txt  shannon_et_al_2018.txt  UTMOST_Farash_et_al_2019.txt | awk '{if($1==1833){print $0;}}' > eda2_1channel_10ms.txt
+python ~/github/frb_rates/python/rms_txtfile.py eda2_1channel_10ms.txt > eda2_1channel_10ms.rate
+
+cat chime.txt GBT_Parent_et_al_2020.txt  Parkes_Bhandari_et_al_2018.txt  shannon_et_al_2018.txt  UTMOST_Farash_et_al_2019.txt | awk '{if($1==580){print $0;}}' > eda2_1channel_1ms.txt
+python ~/github/frb_rates/python/rms_txtfile.py eda2_1channel_1ms.txt > eda2_1channel_1ms.rate
+
+# 13 channels :
+cat chime.txt GBT_Parent_et_al_2020.txt  Parkes_Bhandari_et_al_2018.txt  shannon_et_al_2018.txt  UTMOST_Farash_et_al_2019.txt | awk '{if($1==7906){print $0;}}' > eda2_13channel_2000ms.txt
+python ~/github/frb_rates/python/rms_txtfile.py eda2_13channel_2000ms.txt > eda2_13channel_2000ms.rate
+
+cat chime.txt GBT_Parent_et_al_2020.txt  Parkes_Bhandari_et_al_2018.txt  shannon_et_al_2018.txt  UTMOST_Farash_et_al_2019.txt | awk '{if($1==5590){print $0;}}' > eda2_13channel_1000ms.txt
+python ~/github/frb_rates/python/rms_txtfile.py eda2_13channel_1000ms.txt > eda2_13channel_1000ms.rate
+
+cat chime.txt GBT_Parent_et_al_2020.txt  Parkes_Bhandari_et_al_2018.txt  shannon_et_al_2018.txt  UTMOST_Farash_et_al_2019.txt | awk '{if($1==1768){print $0;}}' > eda2_13channel_100ms.txt
+python ~/github/frb_rates/python/rms_txtfile.py eda2_13channel_100ms.txt > eda2_13channel_100ms.rate
+
+cat chime.txt GBT_Parent_et_al_2020.txt  Parkes_Bhandari_et_al_2018.txt  shannon_et_al_2018.txt  UTMOST_Farash_et_al_2019.txt | awk '{if($1==559){print $0;}}' > eda2_13channel_10ms.txt
+python ~/github/frb_rates/python/rms_txtfile.py eda2_13channel_10ms.txt > eda2_13channel_10ms.rate
+
+cat chime.txt GBT_Parent_et_al_2020.txt  Parkes_Bhandari_et_al_2018.txt  shannon_et_al_2018.txt  UTMOST_Farash_et_al_2019.txt | awk '{if($1==177){print $0;}}' > eda2_13channel_1ms.txt
+python ~/github/frb_rates/python/rms_txtfile.py eda2_13channel_1ms.txt > eda2_13channel_1ms.rate
+
+
+# 40 channels : 
+cat chime.txt GBT_Parent_et_al_2020.txt  Parkes_Bhandari_et_al_2018.txt  shannon_et_al_2018.txt  UTMOST_Farash_et_al_2019.txt | awk '{if($1==4472){print $0;}}' > eda2_40channel_2000ms.txt
+python ~/github/frb_rates/python/rms_txtfile.py eda2_40channel_2000ms.txt > eda2_40channel_2000ms.rate
+
+cat chime.txt GBT_Parent_et_al_2020.txt  Parkes_Bhandari_et_al_2018.txt  shannon_et_al_2018.txt  UTMOST_Farash_et_al_2019.txt | awk '{if($1==3162){print $0;}}' > eda2_40channel_1000ms.txt
+python ~/github/frb_rates/python/rms_txtfile.py eda2_40channel_1000ms.txt > eda2_40channel_1000ms.rate
+
+cat chime.txt GBT_Parent_et_al_2020.txt  Parkes_Bhandari_et_al_2018.txt  shannon_et_al_2018.txt  UTMOST_Farash_et_al_2019.txt | awk '{if($1==1000){print $0;}}' > eda2_40channel_100ms.txt
+python ~/github/frb_rates/python/rms_txtfile.py eda2_40channel_100ms.txt > eda2_40channel_100ms.rate
+
+cat chime.txt GBT_Parent_et_al_2020.txt  Parkes_Bhandari_et_al_2018.txt  shannon_et_al_2018.txt  UTMOST_Farash_et_al_2019.txt | awk '{if($1==316){print $0;}}' > eda2_40channel_10ms.txt
+python ~/github/frb_rates/python/rms_txtfile.py eda2_40channel_10ms.txt > eda2_40channel_10ms.rate
+
+cat chime.txt GBT_Parent_et_al_2020.txt  Parkes_Bhandari_et_al_2018.txt  shannon_et_al_2018.txt  UTMOST_Farash_et_al_2019.txt | awk '{if($1==100){print $0;}}' > eda2_40channel_1ms.txt
+python ~/github/frb_rates/python/rms_txtfile.py eda2_40channel_1ms.txt > eda2_40channel_1ms.rate
+
+
+
