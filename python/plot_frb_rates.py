@@ -53,6 +53,7 @@ def parse_options(idx):
    parser.add_option('--include_alpha_minus2','--alpha_minus2',action="store_true",dest="include_alpha_minus2",default=False, help="Include curves for spectral index alpha -2 [default %default]")
    parser.add_option('--legend_with_curves','--include_curves',action="store_true",dest="legend_with_curves",default=False, help="Include curves in the legend [default %default]")
    parser.add_option('-F','--fluence_threshold','--fluence_threshold','--fluence_cutoff',dest="fluence_threshold",default=200.00, help="Fluence threshold in Jy ms [default %default Jy ms]",type="float")
+   parser.add_option('--description','--add_plot_text','--text',action="store_true",dest="add_plot_text",default=False, help="Add text to plot [default %default]")
    (options, args) = parser.parse_args(sys.argv[idx:])
 
    print("#####################################################################################################")
@@ -62,6 +63,7 @@ def parse_options(idx):
    print("Include alpha = -2 : %s" % (options.include_alpha_minus2))
    print("Legend with curves = %s" % (options.legend_with_curves))
    print("Fluence threshold  = %.4f [Jy ms]" % (options.fluence_threshold))
+   print("Add text to plot   = %s" % (options.add_plot_text))
    print("#####################################################################################################")
    
    return (options, args)
@@ -545,29 +547,30 @@ def do_plots(options) :
 #   plt.axvspan( 200, 10000, ymin=0.235, ymax=0.535, alpha=0.5, facecolor='red' )
    # legend of the span :
 # OLD AT TOP  plt.axvspan( 1, 30, ymin=0.94, ymax=1.1, alpha=0.5, facecolor='red' )
-   fontsize=20
-   start_region=0.9
-   plt.axvspan( start_region, 1400, ymin=0.01, ymax=0.22, alpha=0.5, facecolor='red' )
+   if options.add_plot_text :
+      fontsize=20
+      start_region=0.9
+      plt.axvspan( start_region, 1400, ymin=0.01, ymax=0.22, alpha=0.5, facecolor='red' )
 #   esc = (r' Red colour marks the region with fluences (F) $\ge$100 Jy ms.') # Red marks the region above a threshold of 100 Jy ms,
-   desc = (r' The existing measurements (data points) and their errors (shaded regions)') # Red marks the region above a threshold of 100 Jy ms,
-   plt.text(start_region,0.005,desc,fontsize=fontsize)
-   desc = (r' scaled to %d MHz using spectral index $\alpha=$0 (solid lines) and $\alpha=$-1 (dashed ' % (options.freq_mhz))
-   plt.text(start_region,0.002,desc,fontsize=fontsize)
-   desc = (r' dotted lines). The red colour marks the region with fluences (F) $>$100 Jy ms')
-   plt.text(start_region,0.0008,desc,fontsize=fontsize)
-   desc = (r' where the FRB rate is between 0.2 and 180 per day ($\sim$360 - 65000 per year)')
-   plt.text(start_region,0.0003,desc,fontsize=fontsize)
-   desc = (r' and decreases according to $\propto F^{-3/2}$ scaling for the Euclidean Universe.')
-   plt.text(start_region,0.0001,desc,fontsize=fontsize)
+      desc = (r' The existing measurements (data points) and their errors (shaded regions)') # Red marks the region above a threshold of 100 Jy ms,
+      plt.text(start_region,0.005,desc,fontsize=fontsize)
+      desc = (r' scaled to %d MHz using spectral index $\alpha=$0 (solid lines) and $\alpha=$-1 (dashed ' % (options.freq_mhz))
+      plt.text(start_region,0.002,desc,fontsize=fontsize)
+      desc = (r' dotted lines). The red colour marks the region with fluences (F) $>$100 Jy ms')
+      plt.text(start_region,0.0008,desc,fontsize=fontsize)
+      desc = (r' where the FRB rate is between 0.2 and 180 per day ($\sim$360 - 65000 per year)')
+      plt.text(start_region,0.0003,desc,fontsize=fontsize)
+      desc = (r' and decreases according to $\propto F^{-3/2}$ scaling for the Euclidean Universe.')
+      plt.text(start_region,0.0001,desc,fontsize=fontsize)
 # OLD AT TOP  plt.text(1,3500000,desc,fontsize=15)
 #   desc = (r'measurements, $\alpha$ <= -1 and Euclidean Universe')
 # OLD AT TOP   plt.text(1,1700000,desc,fontsize=15)
  
 #   points = [[100, 2], [100,600], [10000, 0.6], [10000, 0.002] ]
-   points = [[100, 1], [100,170], [9000, 0.18], [9000, 0.001] ]
-   polygon= plt.Polygon(points,  fill=True, color='red' , alpha=0.5, edgecolor='r', figure=fig)
-   # plt.add_patch(polygon)
-   plt.gca().add_patch(polygon)
+      points = [[100, 1], [100,170], [9000, 0.18], [9000, 0.001] ]
+      polygon= plt.Polygon(points,  fill=True, color='red' , alpha=0.5, edgecolor='r', figure=fig)
+      # plt.add_patch(polygon)
+      plt.gca().add_patch(polygon)
 
 
    # fit line to data points :
