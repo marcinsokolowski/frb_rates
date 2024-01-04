@@ -567,10 +567,10 @@ def do_plots(options) :
 # OLD AT TOP   plt.text(1,1700000,desc,fontsize=15)
  
 #   points = [[100, 2], [100,600], [10000, 0.6], [10000, 0.002] ]
-      points = [[100, 1], [100,170], [9000, 0.18], [9000, 0.001] ]
-      polygon= plt.Polygon(points,  fill=True, color='red' , alpha=0.5, edgecolor='r', figure=fig)
-      # plt.add_patch(polygon)
-      plt.gca().add_patch(polygon)
+   points = [[100, 1], [100,170], [9000, 0.18], [9000, 0.001] ]
+   polygon= plt.Polygon(points,  fill=True, color='red' , alpha=0.5, edgecolor='r', figure=fig)
+   # plt.add_patch(polygon)
+   plt.gca().add_patch(polygon)
 
 
    # fit line to data points :
