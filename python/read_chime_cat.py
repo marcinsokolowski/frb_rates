@@ -123,7 +123,7 @@ def read_spectrum( file_name ) :
    return (data_x,data_y)    
 
 
-def excel2csv( xls_file = "N-Spectre Scans - Moisture Content.xlsx" , csv_file="Dry_at_Lab.csv", sheet_name="Dry_at_Lab") :
+def excel2csv( xls_file = "test.xlsx" , csv_file="test.csv", sheet_name="test") :
 #    file="140818_Combined_Data_for_Curtin_2018.csv"
     wb = xlrd.open_workbook( xls_file )
     sheet = wb.sheet_by_name( sheet_name )
