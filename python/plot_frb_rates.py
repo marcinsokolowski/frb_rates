@@ -539,7 +539,7 @@ def do_plots(options) :
    legend_ncol=2 
    if not options.legend_with_curves :
       legend_ncol=1
-   plt.legend( plot_list, legend_list, loc=legend_location, fontsize=fontsize, ncol=legend_ncol) # 14
+#   plt.legend( plot_list, legend_list, loc=legend_location, fontsize=fontsize, ncol=legend_ncol) # 14
 
    # mark region : https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.html
    # plt.axhspan(ymin, ymax[, xmin, xmax])   
@@ -605,8 +605,18 @@ def do_plots(options) :
          print("DEBUG : %.4f %.4f -> %.8f %.8f (from %.8f*%.8f) -> %.8f FRBs / day -> %.4f FRBs / year" % (x,math.log10(x),y_arr_plot[i],y_log,c,p,frbs_per_day,frbs_per_year))
       i += 1
    ax_fit =  plt.plot( x_arr_plot, y_arr_plot, linestyle='-', color='black', linewidth=2 )
-#   matplotlib.pyplot.loglog( numpy.log10( x_arr_plot ), y_arr_plot_log )
+   plot_list.append(ax_fit[0])
+   legend_list.append(r'Fitted curve (RShannon, GBT, CHIME, UTMOST, PARKES)')
    
+   for x_val in numpy.arange(57.0,58.0,0.1) :
+      y_log = slope*math.log10(x) + intercept
+      p = math.pow(x_val,slope)
+      y_val = c*p
+      print("FIT : %.4f Jy ms -> rate = %.4f FRBs / day / sky" % (x_val,y_val))
+            
+#   matplotlib.pyplot.loglog( numpy.log10( x_arr_plot ), y_arr_plot_log )
+ 
+   plt.legend( plot_list, legend_list, loc=legend_location, fontsize=fontsize, ncol=legend_ncol)  
    plt.xlabel('Fluence [Jy ms]' , fontsize=30 )
    plt.ylabel('#FRBs / day / sky' , fontsize=30 )
    plt.xscale('log')
